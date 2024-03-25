@@ -4,20 +4,21 @@ const prisma = getPrismaInstant()
 
 export const CheckUserIsValid = async(req,res,next) =>{
     try{
-        const { id } = req.query
-        if(!id){
+        const { email } = req.query
+        if(!email){
             return res.status(401).json({error:"forbidden!"})
         }
-        const user = await prisma.users.findUnique({
+        const user = await prisma.user.findUnique({
             where:{
-                id:Number(id)
+               email:email.toString()
             }
         })
         if(!user){
             return res.status(404).json({error:"user doesnt exist!"})
         }
-        await next()
+         next()
     }catch(error){
+        console.log(error)
         return res.status(500).json({msg:error})
     }
 }

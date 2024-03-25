@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { CheckUserIsValid } from "../middlewares/securityChecker.js";
-import { getPurchase, getSinglePurchase } from "../controller/purchase.js";
+import { getPurchase, getSinglePurchase, getallpurs } from "../controller/purchase.js";
 
 export const purchaseRoute = Router();
-purchaseRoute.get('/purchase_table',CheckUserIsValid,getPurchase);
+
+///get all purchase
+purchaseRoute.get('/purchases',CheckUserIsValid,getallpurs)
+
+purchaseRoute.get('/purchasetable',CheckUserIsValid,getPurchase);
 purchaseRoute.get('/purchase/:id',CheckUserIsValid,getSinglePurchase);

@@ -16,7 +16,7 @@ enum UserRole {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid()) @unique
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -66,7 +66,7 @@ model PasswordResetToken {
 }
 
 model TwoFactorToken {
-  id String @id @default(cuid())
+  id String @id @default(cuid()) 
   email String
   token String @unique
   expires DateTime
@@ -83,8 +83,33 @@ model TwoFactorConfirmation {
   @@unique([userId])
 }
 
-model Business {
+model Invoice {
   id String @id @default(cuid())
+  cusName String?
+  cusComp String?
+  cusPhone String?
+  cusEmail String?
+  cusAddr String?
+  invNo String?
+  invPo String?
+  invTitle String?
+  invDate String?
+  invBus String?
+  invStatus String?
+  invStaff String?
+  invNote String?
+  items Json?
+  partial Float?
+  method String?
+  discount Float?
+  total Float?
+  balance Float?
+  noti Boolean @default(true)
+  deletedAt Boolean @default(false)
+}
+
+model Business {
+  id String @id @default(cuid()) @unique
   busName String?
   busEmail String
   busType String
@@ -109,7 +134,7 @@ model Business {
 }
 
 model Emp {
-  id String @id @default( cuid())
+  id String @id @default( cuid()) @unique
   empName String?
   empId String?
   empPhone String?
@@ -120,12 +145,13 @@ model Emp {
   empTelegram String?
   empGender String
   empOcc String?
-  memberSince DateTime @default(now())
+  memberSince String?
+  creatdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Customer {
-  id String @id @default(cuid())
+  id String @id @default(cuid()) @unique
   cusName String
   cusTelegram String?
   cusBus String?
@@ -141,7 +167,7 @@ model Customer {
 }
 
 model Product {
-  id String @id @default(cuid())
+  id String @id @default(cuid()) @unique
   prodItemName String
   prodUnitPrice Float
   prodBus String
@@ -152,7 +178,7 @@ model Product {
 }
 
 model Purchase {
-  id String @id @default(cuid())
+  id String @id @default(cuid()) @unique
   purName String
   purPrice Float
   purBus String
