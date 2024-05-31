@@ -49,7 +49,7 @@ app.use('/api',dashRoute)
 app.get('/test',async(req,res)=>{
     try{
         const invoice = await prisma.invoice.findMany({})
-        return res.status(200).json(invoice)
+        return res.status(200).json({invoices:invoice.length})
     }catch(error){
         console.log(error)
     }
