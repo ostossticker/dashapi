@@ -390,22 +390,30 @@ export const historyCard = async (req, res) => {
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart);
         todayEnd.setDate(todayEnd.getDate() + 1);
-
+        
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+        
+        // Adjusting for time zone offset
+        const timeZoneOffset = today.getTimezoneOffset() / 60; // Offset in hours
+        const timeZoneSuffix = timeZoneOffset >= 0 ? `+${timeZoneOffset}:00` : `-${Math.abs(timeZoneOffset)}:00`;
+        
+        const todayStartString = todayStart.toISOString().slice(0, 19) + timeZoneSuffix;
+        const todayEndString = todayEnd.toISOString().slice(0, 19) + timeZoneSuffix;
+        const yesterdayStartString = yesterdayStart.toISOString().slice(0, 19) + timeZoneSuffix;
 
         // Calculate today's balance
-        const todayCount = await prisma.invoice.findMany({
-            where:{
+       const todayCount = await prisma.invoice.findMany({
+            where: {
                 mode: 'invoice',
-                invDate:{
-                    gte: todayStart.toISOString(),
-                    lt: todayEnd.toISOString()
+                invDate: {
+                    gte: todayStartString,
+                    lt: todayEndString
                 },
                 deletedAt: null
             },
-            select:{
+            select: {
                 balance: true
             }
         });
@@ -413,18 +421,18 @@ export const historyCard = async (req, res) => {
 
         // Calculate yesterday's balance
         const yesterdayCount = await prisma.invoice.findMany({
-            where:{
-                mode: 'invoice',
-                invDate:{
-                    gte: yesterdayStart.toISOString(),
-                    lt: todayStart.toISOString()
+                where: {
+                    mode: 'invoice',
+                    invDate: {
+                        gte: yesterdayStartString,
+                        lt: todayStartString
+                    },
+                    deletedAt: null
                 },
-                deletedAt: null
-            },
-            select:{
-                balance: true
-            }
-        });
+                select: {
+                    balance: true
+                }
+            });
         const yesterdayBalance = yesterdayCount.reduce((acc, curr) => acc + curr.balance, 0);
 
 
