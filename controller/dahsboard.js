@@ -7,10 +7,10 @@ const daily = async (req,res) =>{
     const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart);
-        todayEnd.setDate(todayEnd.getDate() + 1);
+        todayEnd.setDate(todayEnd.getDate() + 2);
 
         const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setDate(yesterday.getDate() + 1 - 1);
         const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
 
     try{
@@ -194,10 +194,10 @@ const calculateExpense = async () =>{
     const today = new Date();
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const todayEnd = new Date(todayStart);
-    todayEnd.setDate(todayEnd.getDate() + 1);
+    todayEnd.setDate(todayEnd.getDate() + 2);
 
     const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setDate(yesterday.getDate() + 1 - 1);
     const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
 
     const todaye = await prisma.purchase.findMany({
@@ -292,10 +292,10 @@ export const dailyCard = async (req, res) => {
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart);
-        todayEnd.setDate(todayEnd.getDate() + 1);
+        todayEnd.setDate(todayEnd.getDate() + 2);
 
         const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setDate(yesterday.getDate() + 1 - 1);
         const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
 
         
@@ -389,10 +389,10 @@ export const historyCard = async (req, res) => {
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart);
-        todayEnd.setDate(todayEnd.getDate() + 1);
+        todayEnd.setDate(todayEnd.getDate() + 2);
 
         const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setDate(yesterday.getDate() + 1 - 1);
         const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
 
         // Calculate today's balance
@@ -710,7 +710,7 @@ export const telegram = async (req,res) =>{
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart);
-        todayEnd.setDate(todayEnd.getDate() + 1);
+        todayEnd.setDate(todayEnd.getDate() + 2);
 
         const todaye = await prisma.invoice.count({
             where:{
