@@ -18,15 +18,27 @@ enum UserRole {
 
 model User {
   id            String    @id @default(cuid()) @unique
-  name          String?
-  email         String?   @unique
+  name          String? 
+  email         String?   @unique 
   emailVerified DateTime?
   image         String?
   password      String?
+  phoneNumber String? 
   role          UserRole @default(USER)
   accounts      Account[]
   isTwoFactorEnabled Boolean @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
+  invoice Boolean? @default(true)
+  quotation Boolean? @default(true)
+  receipt Boolean? @default(true)
+  business Boolean? @default(true)
+  employee Boolean? @default(true)
+  customer Boolean? @default(true)
+  product Boolean? @default(true)
+  purchase Boolean? @default(true)
+  payment Boolean? @default(true)
+  telegramReport Boolean? @default(false)
+  alarmTime String?
 }
 
 model Account {
@@ -86,27 +98,45 @@ model TwoFactorConfirmation {
 
 model Invoice {
   id String @id @default(cuid())
-  cusName String?
+  ///////toggle stuff
+  toggleName Boolean @default(false)
+  toggleComp Boolean @default(false)
+  togglePhone Boolean @default(false)
+  toggleEmail Boolean @default(false)
+  toggleAddr Boolean @default(false)
+  togglePo Boolean @default(false)
+  ////// -------------------------- /////
+  toggleLogo Boolean @default(false)
+  toggleBankInfo Boolean @default(false)
+  toggleAddress Boolean @default(false)
+  toggleSignature Boolean @default(false)
+  //////toggle stuff
+  cusName1 String?
   cusComp String?
-  cusPhone String?
+  invCusPhone1 String?
   cusEmail String?
   cusAddr String?
   invNo String?
   invPo String?
   invTitle String?
   invDate String?
+  udpatedDate String?
   invBus String?
   invStatus String?
-  invStaff String?
+  invStaff Json?
   invNote String?
   items Json?
+  mode String?
   partial Float?
   method String?
   discount Float?
   total Float?
   balance Float?
-  noti Boolean @default(true)
-  deletedAt Boolean @default(false)
+  noti Boolean @default(false)
+  enableNote Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 }
 
 model Business {
@@ -129,9 +159,66 @@ model Business {
   signature String?
   busLogo String?
   Rec1 String?
-  Rec2 String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Quotation {
+  id String @id @default(cuid())
+  ///////toggle stuff 
+  toggleName Boolean @default(false)
+  toggleComp Boolean @default(false)
+  togglePhone Boolean @default(false)
+  toggleEmail Boolean @default(false)
+  toggleAddr Boolean @default(false)
+  ////// -------------------------- /////
+  toggleLogo Boolean @default(false)
+  toggleBankInfo Boolean @default(false)
+  toggleAddress Boolean @default(false)
+  toggleSignature Boolean @default(false)
+  toggleEmployee Boolean @default(false)
+  //////toggle stuff
+  cusName2 String?
+  cusComp String?
+  cusPhone2 String?
+  cusEmail String?
+  cusAddr String?
+  staffName String?
+  staffPhone String?
+  staffTelegram String?
+  qtNo String?
+  qtTitle String?
+  qtDate String?
+  udpatedDate String?
+  qtBus String?
+  qtStaff Json?
+  qtImage1 String?
+  qtImage2 String?
+  prodDes Json?
+  items Json?
+  method String?
+  total Float? 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  noti Boolean @default(true)
+  enableNote Boolean @default(false)
+  deletedAt DateTime?
+}
+
+model Receipt {
+  id String @id @default(cuid())
+  recFrom String?
+  date String?
+  updateDate String?
+  payOf String?
+  check String?
+  usd Float?
+  recNo String?
+  recBus String?
+  noti Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 }
 
 model Emp {
@@ -172,6 +259,7 @@ model Product {
   prodItemName String
   prodUnitPrice Float
   prodBus String
+  prodBusType String
   prodSince String
   proditemDes String?
   createdAt DateTime @default(now())
@@ -189,6 +277,17 @@ model Purchase {
   purSupp String?
   image1 String?
   image2 String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recently {
+  id String @id @default(cuid()) @unique
+  user String
+  cust String 
+  route String
+  action String
+  paperNo String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

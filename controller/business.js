@@ -24,7 +24,7 @@ export const getBusiness = async (req,res,next) =>{
             ],
         },
         orderBy:{
-            createdAt:'asc'
+            createdAt:'desc'
         }
     })
     const totalBusiness = await prisma.business.count()
@@ -66,17 +66,17 @@ export const getAllBusiness = async (req,res) =>{
     try{
         const { filter } = req.query
         const buss = await prisma.business.findMany({})
-        if (filter) {
+       
             const fuse = new Fuse(buss, {
                 keys: ['busName'],
                 threshold: 0.3,
                 includeScore: true
             });
-            const fuzzyFilteredResults = fuse.search(filter).map(res => res.item);
+            let fuzzyFilteredResults = buss
+            if (filter) {
+                fuzzyFilteredResults = fuse.search(filter).map(res => res.item);
+            }
             return res.status(200).json(fuzzyFilteredResults);
-        } else {
-            return res.status(200).json(buss);
-        }
     }catch(error){
         return res.status(500).json({msg:error})
     }

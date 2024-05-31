@@ -9,3 +9,10 @@ businessRoute.get('/businesss',CheckUserIsValid,getAllBusiness);
 
 businessRoute.get('/businesstable',CheckUserIsValid,getBusiness)
 businessRoute.get('/business/:id',CheckUserIsValid,getSingleBusiness)
+
+
+
+
+
+
+

@@ -28,7 +28,7 @@ export const getEmployee = async (req, res) => {
                 ]
             },
             orderBy: {
-                creatdAt: 'asc'
+                creatdAt: 'desc'
             }
         });
 
@@ -79,12 +79,12 @@ export const getSingleEmployee = async (req,res) =>{
 
 export const getAllEmp = async(req,res) =>{
     try{
-        const { filter, genderFilter, occupationFilter } = req.query;
+        const { filter, phone, occupationFilter } = req.query;
 
         const emps = await prisma.emp.findMany({});
 
         const fuse = new Fuse(emps, {
-            keys: ['empName', 'empGender', 'empOcc'],
+            keys: ['empName', 'empOcc', 'empPhone'],
             threshold: 0.3,
             includeScore: true
         });
@@ -96,12 +96,12 @@ export const getAllEmp = async(req,res) =>{
             fuzzyFilteredResults = fuse.search(filter).map(result => result.item);
         }
 
-        if (genderFilter) {
-            fuzzyFilteredResults = fuzzyFilteredResults.filter(emp => emp.empGender.includes(genderFilter));
-        }
-
         if (occupationFilter) {
             fuzzyFilteredResults = fuzzyFilteredResults.filter(emp => emp.empOcc.includes(occupationFilter));
+        }
+
+        if(phone){
+            fuzzyFilteredResults = fuzzyFilteredResults.filter(emp => emp.empPhone.includes(phone))
         }
 
         return res.status(200).json(fuzzyFilteredResults);

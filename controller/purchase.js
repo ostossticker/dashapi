@@ -26,7 +26,7 @@ export const getPurchase = async (req,res) =>{
             ]
         },
         orderBy:{
-            createdAt:'asc'
+            createdAt:'desc'
         }
     })
     const totalPurchase = await prisma.purchase.count()
@@ -72,7 +72,10 @@ export const getallpurs = async (req,res) =>{
             threshold: 0.3,
             includeScore: true
         })
-        const fuzzyFilteredResults = filter ? fuse.search(filter).map(result => result.item) : purss
+        let fuzzyFilteredResults = purss
+        if(filter){
+            fuzzyFilteredResults = fuse.search(filter).map(result => result.item) 
+        }
         return res.status(200).json(fuzzyFilteredResults);
     }catch(error){
         return res.status(500).json({msg:error})

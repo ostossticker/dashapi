@@ -25,7 +25,7 @@ export const getCustomer = async (req,res,next) =>{
             ],
         },
         orderBy:{
-            createdAt:'asc'
+            createdAt:'desc'
         }
     })
     const totalCustomer = await prisma.customer.count()
@@ -63,24 +63,26 @@ export const getSingleCustomer = async (req,res) =>{
     }
 }
 
-export const getAllCustomer = async (req,res)=>{
+export const getAllCustomer = async (req,res) =>{
     try{
-        const {filter} =req.query
-        const cuss = await prisma.customer.findMany({})
+        const {filter , phone,business} = req.query
+        const purss = await prisma.customer.findMany({})
+        const fuse = new Fuse(purss,{
+            keys: ['cusName','cusPhone1','cusBus'],
+            threshold: 0.3,
+            includeScore: true
+        })
+        let fuzzyFilteredResults = purss
         if(filter){
-            const fuse = new Fuse(cuss,{
-                keys: ['cusBus'],
-                threshold: 0.3,
-                includeScore: true
-            })
-    
-            const fuzzyFilteredResults = fuse.search(filter).map(result => result.item) 
-            return res.status(200).json(fuzzyFilteredResults);
-        }else{
-            return res.status(200).json(cuss);
+            fuzzyFilteredResults = fuse.search(filter).map(result => result.item) 
         }
- 
-      
+        if(phone){
+            fuzzyFilteredResults = fuzzyFilteredResults.filter(item => item.cusPhone1.includes(phone))
+        }
+        if(business){
+            fuzzyFilteredResults = fuzzyFilteredResults.filter(item => item.cusBus.includes(business))
+        }
+        return res.status(200).json(fuzzyFilteredResults);
     }catch(error){
         return res.status(500).json({msg:error})
     }
