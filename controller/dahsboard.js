@@ -18,8 +18,8 @@ const daily = async (req,res) =>{
             where:{
                 mode:'invoice',
                 invDate:{
-                    gte: todayStart.toISOString(),
-                    lt: todayEnd.toISOString()
+                    gte: yesterdayStart.toISOString(),
+                     lt: todayStart.toISOString()
                 },
                 deletedAt:null
             },
@@ -32,8 +32,8 @@ const daily = async (req,res) =>{
             where:{
                 mode:'invoice',
                 invDate:{
-                    gte: yesterdayStart.toISOString(),
-                    lt: todayStart.toISOString()
+                    gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
+                    lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
                 },
                 deletedAt:null
             },
@@ -86,8 +86,8 @@ const calculateMonthlyInvoiceSales = async () => {
         where: {
             mode: 'invoice',
             invDate: {
-                gte: currentMonthFirstDay.toISOString(),
-                lt: currentMonthLastDay.toISOString()
+                gte: new Date(currentMonthFirstDay.getFullYear() , currentMonthFirstDay.getMonth() , currentMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(currentMonthLastDay.getFullYear() , currentMonthLastDay.getMonth() , currentMonthLastDay.getDate() -1).toISOString()
             },
             deletedAt: null
         },
@@ -100,8 +100,8 @@ const calculateMonthlyInvoiceSales = async () => {
         where: {
             mode: 'invoice',
             invDate: {
-                gte: lastMonthFirstDay.toISOString(),
-                lt: lastMonthLastDay.toISOString()
+                gte: new Date(lastMonthFirstDay.getFullYear() , lastMonthFirstDay.getMonth() , lastMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(lastMonthLastDay.getFullYear() , lastMonthLastDay.getMonth() , lastMonthLastDay.getDate() - 1).toISOString()
             },
             deletedAt: null
         },
@@ -144,8 +144,8 @@ const calculateMonthlyUnpaidInvoiceSales = async () => {
         where: {
             mode:'invoice',
             invDate: {
-                gte: currentMonthFirstDay.toISOString(),
-                lt: currentMonthLastDay.toISOString()
+                gte: new Date(currentMonthFirstDay.getFullYear() , currentMonthFirstDay.getMonth() , currentMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(currentMonthLastDay.getFullYear() , currentMonthLastDay.getMonth() , currentMonthLastDay.getDate() -1).toISOString()
             },
             invStatus: 'unpay',
             deletedAt:null
@@ -159,8 +159,8 @@ const calculateMonthlyUnpaidInvoiceSales = async () => {
         where: {
             mode:'invoice',
             invDate: {
-                gte: lastMonthFirstDay.toISOString(),
-                lt: lastMonthLastDay.toISOString()
+                gte: new Date(lastMonthFirstDay.getFullYear() , lastMonthFirstDay.getMonth() , lastMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(lastMonthLastDay.getFullYear() , lastMonthLastDay.getMonth() , lastMonthLastDay.getDate() - 1).toISOString()
             },
             invStatus: 'unpay',
             deletedAt:null
@@ -203,8 +203,8 @@ const calculateExpense = async () =>{
     const todaye = await prisma.purchase.findMany({
         where:{
             purSince:{
-                gte: todayStart.toISOString(),
-                lt: todayEnd.toISOString()
+                gte: yesterdayStart.toISOString(),
+                lt: todayStart.toISOString()
             },
         },
         select:{
@@ -215,8 +215,8 @@ const calculateExpense = async () =>{
     const yesterdaye = await prisma.purchase.findMany({
         where:{
             purSince:{
-                gte: yesterdayStart.toISOString(),
-                lt: todayStart.toISOString()
+                gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
+                lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
             },
         },
         select:{
@@ -246,16 +246,17 @@ export const getExpenses = async (req,res) =>{
 
 const calculateCustomer = async () =>{
     const today = new Date();
-    const currentMonthFirstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastMonthFirstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const currentMonthFirstDay = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
+    const currentMonthLastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of the current month
 
-    const lastMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0);
+    const lastMonthFirstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1); // First day of the last month
+    const lastMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of the last month
 
     const thisMonthCustomerCount = await prisma.customer.count({
         where: {
             createdAt: {
-                gte: currentMonthFirstDay,
-                lt: today
+                gte: new Date(currentMonthFirstDay.getFullYear() , currentMonthFirstDay.getMonth() , currentMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(currentMonthLastDay.getFullYear() , currentMonthLastDay.getMonth() , currentMonthLastDay.getDate() -1).toISOString()
             },
         }
     });
@@ -263,8 +264,8 @@ const calculateCustomer = async () =>{
     const lastMonthCustomerCount = await prisma.customer.count({
         where: {
             createdAt: {
-                gte: lastMonthFirstDay,
-                lt: lastMonthLastDay
+                gte: new Date(lastMonthFirstDay.getFullYear() , lastMonthFirstDay.getMonth() , lastMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(lastMonthLastDay.getFullYear() , lastMonthLastDay.getMonth() , lastMonthLastDay.getDate() - 1).toISOString()
             },
         }
     });
@@ -309,8 +310,8 @@ export const dailyCard = async (req, res) => {
                     mode:'invoice',
                     invStatus:{contains:mode},
                     invDate:{
-                        gte: todayStart.toISOString(),
-                        lt: todayEnd.toISOString()
+                        gte: yesterdayStart.toISOString(),
+                        lt: todayStart.toISOString()
                     },
                     deletedAt:null
                 },
@@ -326,8 +327,8 @@ export const dailyCard = async (req, res) => {
                     mode:'invoice',
                     invStatus:{contains:mode},
                     invDate:{
-                        gte: yesterdayStart.toISOString(),
-                        lt: todayStart.toISOString()
+                        gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
+                        lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
                     },
                     deletedAt:null
                 },
@@ -390,30 +391,22 @@ export const historyCard = async (req, res) => {
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart);
         todayEnd.setDate(todayEnd.getDate() + 1);
-        
+
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-        
-        // Adjusting for time zone offset
-        const timeZoneOffset = today.getTimezoneOffset() / 60; // Offset in hours
-        const timeZoneSuffix = timeZoneOffset >= 0 ? `+${timeZoneOffset}:00` : `-${Math.abs(timeZoneOffset)}:00`;
-        
-        const todayStartString = todayStart.toISOString().slice(0, 19) + timeZoneSuffix;
-        const todayEndString = todayEnd.toISOString().slice(0, 19) + timeZoneSuffix;
-        const yesterdayStartString = yesterdayStart.toISOString().slice(0, 19) + timeZoneSuffix;
 
         // Calculate today's balance
-       const todayCount = await prisma.invoice.findMany({
-            where: {
+        const todayCount = await prisma.invoice.findMany({
+            where:{
                 mode: 'invoice',
-                invDate: {
-                    gte: todayStartString,
-                    lt: todayEndString
+                invDate:{
+                    gte: yesterdayStart.toISOString(),
+                    lt: todayStart.toISOString()
                 },
                 deletedAt: null
             },
-            select: {
+            select:{
                 balance: true
             }
         });
@@ -421,18 +414,18 @@ export const historyCard = async (req, res) => {
 
         // Calculate yesterday's balance
         const yesterdayCount = await prisma.invoice.findMany({
-                where: {
-                    mode: 'invoice',
-                    invDate: {
-                        gte: yesterdayStartString,
-                        lt: todayStartString
-                    },
-                    deletedAt: null
+            where:{
+                mode: 'invoice',
+                invDate:{
+                    gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
+                    lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
                 },
-                select: {
-                    balance: true
-                }
-            });
+                deletedAt: null
+            },
+            select:{
+                balance: true
+            }
+        });
         const yesterdayBalance = yesterdayCount.reduce((acc, curr) => acc + curr.balance, 0);
 
 
@@ -468,17 +461,17 @@ export const historyCard = async (req, res) => {
 
 export const historyTotal = async (req,res) =>{
     try{
-        const today = new Date()
+        const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+        const todayEnd = new Date(todayStart);
+        todayEnd.setDate(todayEnd.getDate() + 1);
+
         const invoice = await prisma.invoice.findMany({
             where:{
                 mode:'invoice',
                 invDate:{
-                    gte: yesterdayStart.toISOString(),
-                    lt: todayStart.toISOString()
+                    gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
+                    lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
                 },
                 deletedAt:null
             },
@@ -720,12 +713,16 @@ export const telegram = async (req,res) =>{
         const todayEnd = new Date(todayStart);
         todayEnd.setDate(todayEnd.getDate() + 1);
 
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+
         const todaye = await prisma.invoice.count({
             where:{
                 mode:'invoice',
                 invDate:{
-                    gte: todayStart.toISOString(),
-                    lt: todayEnd.toISOString()
+                    gte: yesterdayStart.toISOString(),
+                    lt: todayStart.toISOString()
                 },
                 deletedAt:null
             },
@@ -733,8 +730,8 @@ export const telegram = async (req,res) =>{
         const todayExp = await prisma.purchase.findMany({
             where:{
                 purSince:{
-                    gte: todayStart.toISOString(),
-                    lt: todayEnd.toISOString()
+                    gte: yesterdayStart.toISOString(),
+                    lt: todayStart.toISOString()
                 },
             },
         })
@@ -742,8 +739,8 @@ export const telegram = async (req,res) =>{
             where:{
                 mode:'invoice',
                 invDate:{
-                    gte: todayStart.toISOString(),
-                    lt: todayEnd.toISOString()
+                    gte: yesterdayStart.toISOString(),
+                    lt: todayStart.toISOString()
                 },
             },
         })
@@ -752,8 +749,8 @@ export const telegram = async (req,res) =>{
                 invStatus:'paid',
                 mode:'invoice',
                 invDate:{
-                    gte: todayStart.toISOString(),
-                    lt: todayEnd.toISOString()
+                    gte: yesterdayStart.toISOString(),
+                    lt: todayStart.toISOString()
                 },
             }
         })
