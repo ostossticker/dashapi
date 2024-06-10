@@ -1,45 +1,80 @@
 import Fuse from "fuse.js";
 import getPrismaInstant from "../lib/prisma.js"
+import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
-export const getBusiness = async (req,res,next) =>{
- try{
-    const {filter='', take="5" , page='1'} = req.query
+export const getBusiness = async (req,res) =>{
+    try {
+        const { filter = '', take = '2', page = '1' ,name=''} = req.query;
+        const takenValue = +take;
+        const skip = (page - 1) * takenValue;
     
-    let takenValue = +take;
-    let skip = (+page - 1) * takenValue
+        const user = await prisma.user.findFirst({
+          where: {
+            name:name
+          }
+        });
     
-    const buses = await prisma.business.findMany({
-        take:takenValue,
-        skip,
-        where:{
-            AND:[
-                {
-                    OR:[
-                        {busName:{contains:filter}},
-                        {busEmail:{contains:filter}}
-                    ]
-                },
-            ],
-        },
-        orderBy:{
-            createdAt:'desc'
+        let businesses;
+        let totalBusiness;
+        if (user.role === "ADMIN") {
+          businesses = await prisma.business.findMany({
+            take: takenValue,
+            skip,
+            where: {
+              OR: [
+                { busName: { contains: filter, mode: 'insensitive' } },
+                { busEmail: { contains: filter, mode: 'insensitive' } }
+              ],
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          });
+          totalBusiness = await prisma.business.count({
+            where: {
+              OR: [
+                { busName: { contains: filter, mode: 'insensitive' } },
+                { busEmail: { contains: filter, mode: 'insensitive' } }
+              ],
+            }
+          });
+        } else {
+          businesses = [];
+          for (const busName of user.businessType) {
+            const businessesByType = await prisma.business.findMany({
+              take: takenValue,
+              skip,
+              where: {
+                OR: [
+                  { busName: { contains: filter, mode: 'insensitive' } },
+                  { busEmail: { contains: filter, mode: 'insensitive' } }
+                ],
+                busName: busName,
+              },
+              orderBy: {
+                createdAt: 'desc'
+              }
+            });
+            businesses.push(...businessesByType);
+          }
+          totalBusiness = businesses.length; // Assuming businesses array contains all filtered businesses
         }
-    })
-    const totalBusiness = await prisma.business.count()
-    const totalPages = Math.ceil(totalBusiness / takenValue)
-    return res.status(200).json({
-        buses,
-        pagination:{
-            page:+page,
+    
+        const totalPages = Math.ceil(totalBusiness / takenValue);
+    
+        return res.status(200).json({
+          buses: businesses,
+          pagination: {
+            page: +page,
             totalPages
-        }
-    })
- }catch(error){
-    next(error)
-    
- } 
+          }
+        });
+      } catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: error.message });
+      }
 }
 
 export const getSingleBusiness = async (req,res) =>{
@@ -64,8 +99,27 @@ export const getSingleBusiness = async (req,res) =>{
 
 export const getAllBusiness = async (req,res) =>{
     try{
-        const { filter } = req.query
-        const buss = await prisma.business.findMany({})
+        const { filter , name } = req.query
+        let buss;
+        const user = await prisma.user.findFirst({
+            where:{
+                name:name
+            }
+        })
+
+        if(user.role === 'ADMIN'){
+            buss = await prisma.business.findMany({})
+        }else{
+            buss = []
+            for(const busName of user.businessType){
+                const businessByType = await prisma.business.findMany({
+                    where:{
+                        busName
+                    }
+                })
+                buss.push(...businessByType)
+            }
+        }
        
             const fuse = new Fuse(buss, {
                 keys: ['busName'],

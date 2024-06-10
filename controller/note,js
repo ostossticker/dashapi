@@ -1,0 +1,63 @@
+import getPrismaInstant from "../lib/prisma.js"
+
+const prisma = getPrismaInstant()
+
+export const getNoteTable = async(req,res) =>{
+    try{
+        const {page='1' , take='15' , fitler , fromDate , toDate} = req.query
+        const takenValue = +take
+        const skip = (+page - 1) * takenValue
+        const note = await prisma.note.findMany({
+            take:takenValue,
+            skip,
+            where:{
+                AND:[
+                    {
+                        OR:[
+                            {title:{contains:fitler, mode:'insensitive'}},
+                        ]
+                    },
+                    fromDate && toDate ? {
+                        OR: [
+                            { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                            { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                        ]
+                    } : {},
+                ]
+            },
+            orderBy:{
+                createdAt:'desc'
+            }
+        })  
+        const totalNote = await prisma.note.count()
+        const totalPages = Math.ceil(totalNote / takenValue)
+        return res.status(200).json({
+            note,
+            pagination:{
+                page:+page,
+                totalPages
+            }
+        })
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error:error.message})
+    }
+}
+
+export const getEditNote = async(req,res) =>{
+    const {id} = req.params
+    try{
+        if(!id){
+            return res.status(404).json({msg:"not founded!"})
+        }
+        const editdata = await prisma.note.findUnique({
+            where:{
+                id
+            }
+        })
+            return res.status(200).json({editNote:editdata})
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error:error.message})
+    }
+}

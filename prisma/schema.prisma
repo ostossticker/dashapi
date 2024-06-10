@@ -31,13 +31,15 @@ model User {
   invoice Boolean? @default(true)
   quotation Boolean? @default(true)
   receipt Boolean? @default(true)
-  business Boolean? @default(true)
-  employee Boolean? @default(true)
-  customer Boolean? @default(true)
-  product Boolean? @default(true)
-  purchase Boolean? @default(true)
-  payment Boolean? @default(true)
+  business Boolean? @default(false)
+  employee Boolean? @default(false)
+  customer Boolean? @default(false)
+  product Boolean? @default(false)
+  purchase Boolean? @default(false)
+  payment Boolean? @default(false)
   telegramReport Boolean? @default(false)
+  noting Boolean? @default(false)
+  businessType Json?
   alarmTime String?
 }
 
@@ -111,11 +113,6 @@ model Invoice {
   toggleAddress Boolean @default(false)
   toggleSignature Boolean @default(false)
   //////toggle stuff
-  cusName1 String?
-  cusComp String?
-  invCusPhone1 String?
-  cusEmail String?
-  cusAddr String?
   invNo String?
   invPo String?
   invTitle String?
@@ -137,11 +134,13 @@ model Invoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+  customerId String 
+  customer Customer @relation(fields: [customerId] , references: [id])
 }
 
 model Business {
   id String @id @default(cuid()) @unique
-  busName String?
+  busName String? @unique
   busEmail String
   busType String
   busAddr String?
@@ -149,7 +148,7 @@ model Business {
   busPhone2 String?
   busTelegram String?
   busDes String?
-  busInvkh String?
+  busInvkh String? 
   busInvEng String?
   busBankName String?
   busBankNumber String?
@@ -178,11 +177,6 @@ model Quotation {
   toggleSignature Boolean @default(false)
   toggleEmployee Boolean @default(false)
   //////toggle stuff
-  cusName2 String?
-  cusComp String?
-  cusPhone2 String?
-  cusEmail String?
-  cusAddr String?
   staffName String?
   staffPhone String?
   staffTelegram String?
@@ -203,6 +197,8 @@ model Quotation {
   noti Boolean @default(true)
   enableNote Boolean @default(false)
   deletedAt DateTime?
+  customerId String 
+  customer Customer @relation(fields: [customerId] , references: [id])
 }
 
 model Receipt {
@@ -223,7 +219,7 @@ model Receipt {
 
 model Emp {
   id String @id @default( cuid()) @unique
-  empName String?
+  empName String? @unique
   empId String?
   empPhone String?
   empNational String?
@@ -240,7 +236,7 @@ model Emp {
 
 model Customer {
   id String @id @default(cuid()) @unique
-  cusName String
+  cusName String @unique
   cusTelegram String?
   cusBus String?
   cusPhone1 String?
@@ -252,6 +248,8 @@ model Customer {
   cusWebsite String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  invoices Invoice[]
+  quotations Quotation[]
 }
 
 model Product {
@@ -288,6 +286,15 @@ model Recently {
   route String
   action String
   paperNo String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Note {
+  id String @id @default(cuid()) @unique
+  title String
+  text String?
+  noteDate String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

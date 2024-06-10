@@ -1,45 +1,176 @@
 import getPrismaInstant from "../lib/prisma.js"
 import Fuse from 'fuse.js'
+import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
 export const getReceipt = async(req,res) =>{
     try{
-        const {filter='' , page='1' , take='5' , filter1='' , fromDate , toDate} = req.query
+        const {filter='' , page='1' , take='15' , name='' , filter1='' , fromDate , toDate} = req.query
+
         let takenValue = +take
         let skip = (+page - 1) * takenValue
 
-        const receipt = await prisma.receipt.findMany({
-            take:takenValue,
-            skip,
+        const user = await prisma.user.findFirst({
             where:{
-                AND:[
-                    {
-                        OR:[
-                            {recNo:{contains:filter}},
-                            {recFrom:{contains:filter}},
-                            {recBus:{contains:filter}}
-                        ]
-                    },
-                    filter1 ? { recBus:{contains :filter1}} : {},
-                    fromDate && toDate ? {
-                        OR: [
-                            { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                            { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
-                        ]
-                    } : {},
-                ],
-                deletedAt:null,
-            },
-            
-            orderBy:{
-                updatedAt:'desc'
+                name:name
             }
         })
-        const totalrecPages = await prisma.receipt.count()
-        const totalPages = Math.ceil(totalrecPages / takenValue)
+
+        let receipts;
+        let totalReceipts;
+        let totalCal
+
+        if(user.role === 'ADMIN'){
+            totalCal = await prisma.receipt.findMany({
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {recNo:{contains:filter,
+                                    mode: 'insensitive'}},
+                                {recFrom:{contains:filter,
+                                    mode: 'insensitive'}}
+                            ]
+                        },
+                        filter1 ? { recBus:{contains :filter1 ,
+                            mode: 'insensitive'}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                            ]
+                        } : {},
+                    ],
+                    deletedAt:null,
+                },
+                
+                orderBy:{
+                    createdAt:'desc'
+                }
+            })
+            receipts = await prisma.receipt.findMany({
+                take:takenValue,
+                skip,
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {recNo:{contains:filter ,
+                                    mode: 'insensitive'}},
+                                {recFrom:{contains:filter ,
+                                    mode: 'insensitive'}}
+                            ]
+                        },
+                        filter1 ? { recBus:{contains :filter1 ,
+                            mode: 'insensitive'}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                            ]
+                        } : {},
+                    ],
+                    deletedAt:null,
+                },
+                
+                orderBy:{
+                    createdAt:'desc'
+                }
+            })
+            totalReceipts = await prisma.receipt.count({
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {recNo:{contains:filter ,
+                                    mode: 'insensitive'}},
+                                {recFrom:{contains:filter ,
+                                    mode: 'insensitive'}},
+                            ]
+                        },
+                        filter1 ? { recBus:{contains :filter1 ,
+                            mode: 'insensitive'}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                            ]
+                        } : {},
+                    ],
+                    deletedAt:null,
+                },
+            })
+        }else{
+            receipts = []
+            totalCal = []
+            for(const busName of user.businessType){
+                const receiptTotal = await prisma.receipt.findMany({
+                    where:{
+                        AND:[
+                            {
+                                OR:[
+                                    {recNo:{contains:filter ,
+                                        mode: 'insensitive'}},
+                                    {recFrom:{contains:filter ,
+                                        mode: 'insensitive'}}
+                                ],
+                                recBus:busName
+                            },
+                            filter1 ? { recBus:{contains :filter1 ,
+                                mode: 'insensitive'}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                ]
+                            } : {},
+                        ],
+                        deletedAt:null,
+                    },
+                })
+                const receiptByType = await prisma.receipt.findMany({
+                    take:takenValue,
+                    skip,
+                    where:{
+                        AND:[
+                            {
+                                OR:[
+                                    {recNo:{contains:filter ,
+                                        mode: 'insensitive'}},
+                                    {recFrom:{contains:filter ,
+                                        mode: 'insensitive'}}
+                                ],
+                                recBus:busName
+                            },
+                            filter1 ? { recBus:{contains :filter1 ,
+                                mode: 'insensitive'}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                ]
+                            } : {},
+                        ],
+                        deletedAt:null,
+                    },
+                    
+                    orderBy:{
+                        createdAt:'desc'
+                    }
+                })
+                receipts.push(...receiptByType)
+                totalCal.push(...receiptTotal)
+            }
+            totalReceipts = receipts.length
+        }
+        const totalFilter = totalCal.reduce((acc,curr)=> acc + curr.usd,0)
+
+        const totalPages = Math.ceil(totalReceipts / takenValue)
+
         return res.status(200).json({
-            receipt,
+            receipts,
+            totalFilter,
             pagination:{
                 page:+page,
                 totalPages
@@ -93,22 +224,6 @@ export const getAllRec = async (req,res) =>{
             fuzzyFilteredResults = fuse.search(filter).map(result => result.item)
         }
         return res.status(200).json(fuzzyFilteredResults)
-    }catch(error){
-        return res.status(500).json({msg:error})
-    }
-}
-
-export const calculateTotal = async (req,res) =>{
-    try{
-        const data = await prisma.receipt.findMany({
-            where:{
-                deletedAt:null
-            }
-        })
-        if(data){
-            const total = data.reduce((acc , rec) => acc + rec.usd,0)
-            return res.status(200).json(total)
-        }
     }catch(error){
         return res.status(500).json({msg:error})
     }

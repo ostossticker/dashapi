@@ -16,6 +16,8 @@ import { recycleRoute } from './routes/recycle.js';
 import { notiRoute } from './routes/notification.js';
 import { adminRoute } from './routes/admin.js';
 import { dashRoute } from './routes/dashboard.js';
+import filterLowerCasePreserveCase from './lib/functions.js';
+import { noteRoute } from './routes/note.js';
 
 dotenv.config();
 
@@ -45,6 +47,7 @@ app.use('/api',recycleRoute);
 app.use('/api',notiRoute)
 app.use('/api',adminRoute)
 app.use('/api',dashRoute)
+app.use('/api',noteRoute)
 
 app.get('/test',async(req,res)=>{
     try{
@@ -54,9 +57,7 @@ app.get('/test',async(req,res)=>{
         console.log(error)
     }
 })
-
-
-
+  
 app.listen(port , ()=>{
     console.log(`server running on port ${port}`)
 })

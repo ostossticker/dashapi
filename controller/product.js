@@ -1,34 +1,80 @@
 import Fuse from "fuse.js";
 import getPrismaInstant from "../lib/prisma.js"
+import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
 export const getProduct = async (req,res) =>{
  try{
-    const {filter='' , take="5" , page='1',filter1=''} = req.query
+    const {filter='' ,name = '', take="15" , page='1',filter1=''} = req.query
     
     let takenValue = +take;
     let skip = (+page - 1) * takenValue
-    
-    const products = await prisma.product.findMany({
-        take:takenValue,
-        skip,
+
+    const user = await prisma.user.findFirst({
         where:{
-            AND:[
-                {
-                    OR:[
-                        {prodItemName:{contains:filter}},
-                        {prodBus:{contains:filter}}
-                    ]
-                },
-                filter1 ? {prodBus:{contains:filter1}} : {}
-            ]
-        },
-        orderBy:{
-            createdAt:'desc'
+            name:name
         }
     })
-    const totalProduct = await prisma.product.count()
+    
+    let products;
+    let totalProduct;
+    if(user.role === 'ADMIN'){
+        products = await prisma.product.findMany({
+            take:takenValue,
+            skip,
+            where:{
+                AND:[
+                    {
+                        OR:[
+                            {prodItemName:{contains:filter , mode: 'insensitive'}},
+                        ]
+                    },
+                    filter1 ? {prodBus:{contains:filter1 , mode: 'insensitive'}} : {}
+                ]
+            },
+            orderBy:{
+                createdAt:'desc'
+            }
+        })
+        totalProduct = await prisma.product.count({
+            where:{
+                AND:[
+                    {
+                        OR:[
+                            {prodItemName:{contains:filter , mode: 'insensitive'}}
+                        ]
+                    },
+                    filter1 ? {prodBus:{contains:filter1 , mode: 'insensitive'}} : {}
+                ]
+            }
+        })
+    }else{
+        products = []
+        for(const busName of user.businessType){
+            const productBytype = await prisma.product.findMany({
+                take:takenValue,
+                skip,
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {prodItemName:{contains:filter , mode: 'insensitive'}}
+                            ],
+                            prodBus:busName
+                        },
+                        filter1 ? {prodBus:{contains:filter1 , mode: 'insensitive'}} : {}
+                    ]
+                },
+                orderBy:{
+                    createdAt:'desc'
+                }
+            }) 
+            products.push(...productBytype)
+        }
+        totalProduct = products.length
+    }
+
     const totalPages = Math.ceil(totalProduct / takenValue)
     return res.status(200).json({
         products,

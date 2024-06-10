@@ -1,35 +1,91 @@
 import Fuse from "fuse.js";
 import getPrismaInstant from "../lib/prisma.js"
+import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
 export const getCustomer = async (req,res,next) =>{
  try{
-    const {filter='', take="5" , page='1',filter1=''} = req.query
+    const {filter='', name='', take="15" , page='1',filter1=''} = req.query
     
     let takenValue = +take;
     let skip = (+page - 1) * takenValue
-    
-    const customers = await prisma.customer.findMany({
-        take:takenValue,
-        skip,
-        where:{
-            AND:[
-                {
-                    OR:[
-                        {cusName:{contains:filter}},
-                        {cusBus:{contains:filter}}
-                    ]
-                },
-                filter1 ? {cusBus:{contains:filter1}} : {}
-            ],
-        },
-        orderBy:{
-            createdAt:'desc'
+
+    const user = await prisma.user.findFirst({
+        where: {
+          name:name
         }
-    })
-    const totalCustomer = await prisma.customer.count()
-    const totalPages = Math.ceil(totalCustomer / takenValue)
+      });
+    
+    let customers;
+    let totalCustomers;
+    if(user.role === 'ADMIN'){
+        customers = await prisma.customer.findMany({
+            take:takenValue,
+            skip,
+            where:{
+                AND:[
+                    {
+                        OR:[
+                            {cusName:{contains:filter , 
+                                mode: 'insensitive'}},
+                            {cusBus:{contains:filter , 
+                                mode: 'insensitive'}}
+                        ]
+                    },
+                    filter1 ? {cusBus:{contains:filter1 , 
+                        mode: 'insensitive'}} : {}
+                ],
+            },
+            orderBy:{
+                createdAt:'desc'
+            }
+        })
+        totalCustomers = await prisma.customer.count({
+            where:{
+                AND:[
+                    {
+                        OR:[
+                            {cusName:{contains:filter , 
+                                mode: 'insensitive'}},
+                            {cusBus:{contains:filter , 
+                                mode: 'insensitive'}}
+                        ]
+                    },
+                    filter1 ? {cusBus:{contains:filter1 , 
+                        mode: 'insensitive'}} : {}
+                ],
+            },
+        })
+    }else{
+        customers = []
+        for(const busName of user.businessType){
+            const customerByType = await prisma.customer.findMany({
+                take:takenValue,
+                skip,
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {cusName:{contains:filter , 
+                                    mode: 'insensitive'}}
+                            ],
+                            cusBus:busName
+                        },
+                        filter1 ? {cusBus:{contains:filter1 , 
+                            mode: 'insensitive'}} : {}
+                    ],
+                },
+                orderBy:{
+                    createdAt:'desc'
+                }
+            })
+            customers.push(...customerByType)
+        }
+        totalCustomers = customers.length
+    }
+    
+    const totalPages = Math.ceil(totalCustomers / takenValue)
     return res.status(200).json({
         customers,
         pagination:{

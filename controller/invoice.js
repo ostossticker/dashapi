@@ -2,69 +2,298 @@ import getPrismaInstant from "../lib/prisma.js";
 import Fuse from "fuse.js";
 const prisma = getPrismaInstant()
 
+function isNumeric(str) {
+    return /^\d+$/.test(str);
+}
+
+
 export const getInvoice = async  (req,res) =>{
     try{
-        const {filter='' , switchMode , take='5',page='1' , filter1='' ,filter2='' , fromDate, toDate} = req.query
+        const {filter='' , switchMode , take='15',page='1' , filter1='', name='' ,filter2='' , fromDate, toDate} = req.query
         let takenValue = +take;
-        let skip = (+page - 1) * takenValue
+        let skip = (page - 1) * takenValue
 
-        const invoice = await prisma.invoice.findMany({
-            take:takenValue,
-            skip,
+        const user = await prisma.user.findFirst({
             where:{
-                AND:[
-                    {
-                        OR:[
-                            {cusName1:{contains:filter}},
-                            {invBus:{contains:filter}},
-                        ]
-                    },
-                    filter1 ? {invBus:{contains:filter1}} : {},
-                    filter2 ? {invStatus:{contains:filter2}} : {},
-                    fromDate && toDate ? {
-                        OR: [
-                            { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                            { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
-                        ]
-                    } : {},
-                ],
-                mode:switchMode,
-                deletedAt:null
-            },
-            orderBy:{
-                updatedAt:'desc'
+                name:name
             }
         })
-        const totalValue = await prisma.invoice.findMany({
-            where:{
-                AND:[
-                    {
-                        OR:[
-                            {cusName1:{contains:filter}},
-                            {invBus:{contains:filter}},
-                        ]
+
+        let invoices;
+        let totalInvoices;
+        let invoiceTotal
+        if(user.role === "ADMIN"){
+            invoiceTotal = await prisma.invoice.findMany({
+                    where:{
+                        AND:[
+                            {
+                                OR:[
+                                    {invNo:{contains:filter , mode: 'insensitive'}},
+                                    {invTitle:{contains:filter , mode: 'insensitive'}},
+                                    isNumeric(filter) ? 
+                                    {
+                                        customer:{
+                                            cusPhone1:{
+                                                contains:filter,
+                                                mode: 'insensitive'
+                                            },
+                                            
+                                        }
+                                    } : {
+                                        customer:{
+                                            cusName:{
+                                                contains:filter,
+                                                mode: 'insensitive'
+                                            }
+                                            
+                                        }
+                                    }
+                                ]
+                            },
+                            filter1 ? {invBus:{contains:filter1}} : {},
+                            filter2 ? {invStatus:{contains:filter2}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                ]
+                            } : {},
+                        ],
+                        mode:switchMode,
+                        deletedAt:null
                     },
-                    filter1 ? {invBus:{contains:filter1}} : {},
-                    filter2 ? {invStatus:{contains:filter2}} : {},
-                    fromDate && toDate ? {
-                        OR: [
-                            { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                            { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
-                        ]
-                    } : {},
-                ],
-                mode:switchMode,
-                deletedAt:null
-            },
-            orderBy:{
-                updatedAt:'desc'
+                    include:{
+                        customer:{
+                            select:{
+                                cusName:true
+                            }
+                        }
+                    },
+                    orderBy:{
+                        createdAt:'desc'
+                    }
+                })
+            invoices = await prisma.invoice.findMany({
+                take:takenValue,
+                skip,
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {invNo:{contains:filter , mode: 'insensitive'}},
+                                {invTitle:{contains:filter , mode: 'insensitive'}},
+                                isNumeric(filter) ? 
+                                {
+                                    customer:{
+                                        cusPhone1:{
+                                            contains:filter,
+                                            mode: 'insensitive'
+                                        },
+                                        
+                                    }
+                                } : {
+                                    customer:{
+                                        cusName:{
+                                            contains:filter,
+                                            mode: 'insensitive'
+                                        }
+                                        
+                                    }
+                                }
+                            ]
+                        },
+                        filter1 ? {invBus:{contains:filter1}} : {},
+                        filter2 ? {invStatus:{contains:filter2}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                            ]
+                        } : {},
+                    ],
+                    mode:switchMode,
+                    deletedAt:null
+                },
+                include:{
+                    customer:{
+                        select:{
+                            cusName:true
+                        }
+                    }
+                },
+                orderBy:{
+                    createdAt:'desc'
+                }
+            })
+            totalInvoices = await prisma.invoice.count({
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {invNo:{contains:filter,
+                                    mode: 'insensitive'
+                                }},
+                                {invTitle:{contains:filter,
+                                    mode: 'insensitive'
+                                }},
+                                isNumeric(filter) ? 
+                                {
+                                    customer:{
+                                        cusPhone1:{
+                                            contains:filter,
+                                            mode: 'insensitive'
+                                        },
+                                        
+                                    }
+                                } : {
+                                    customer:{
+                                        cusName:{
+                                            contains:filter,
+                                            mode: 'insensitive'
+                                        }
+                                        
+                                    }
+                                }
+                            ]
+                        },
+                        filter1 ? {invBus:{contains:filter1}} : {},
+                        filter2 ? {invStatus:{contains:filter2}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                            ]
+                        } : {},
+                    ],
+                    mode:switchMode,
+                    deletedAt:null
+                },
+            })
+        }else{
+            invoiceTotal = []
+            invoices = [];
+            for(const busName of user.businessType){
+                const invoiceBytypeTotal = await prisma.invoice.findMany({
+                    where:{
+                        AND:[
+                            {
+                                OR:[
+                                    {invNo:{contains:filter,
+                                        mode: 'insensitive'
+                                    }},
+                                    {invTitle:{contains:filter,
+                                        mode: 'insensitive'
+                                    }},
+                                    isNumeric(filter) ? 
+                                    {
+                                        customer:{
+                                            cusPhone1:{
+                                                contains:filter,
+                                                mode: 'insensitive'
+                                            },
+                                            
+                                        }
+                                    } : {
+                                        customer:{
+                                            cusName:{
+                                                contains:filter,
+                                                mode: 'insensitive'
+                                            }
+                                            
+                                        }
+                                    }
+                                ],
+                                invBus:busName
+                            },
+                            filter1 ? {invBus:{contains:filter1}} : {},
+                            filter2 ? {invStatus:{contains:filter2}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                ]
+                            } : {},
+                        ],
+                        mode:switchMode,
+                        deletedAt:null
+                    },
+                    include:{
+                        customer:{
+                            select:{
+                                cusName:true
+                            }
+                        }
+                    },
+                })
+                const invoiceByType = await prisma.invoice.findMany({
+                    take:takenValue,
+                    skip,
+                    where:{
+                        AND:[
+                            {
+                                OR:[
+                                    {invNo:{contains:filter,
+                                        mode: 'insensitive'
+                                    }},
+                                    {invTitle:{contains:filter,
+                                        mode: 'insensitive'
+                                    }},
+                                    isNumeric(filter) ? 
+                                    {
+                                        customer:{
+                                            cusPhone1:{
+                                                contains:filter,
+                                                mode: 'insensitive'
+                                            },
+                                            
+                                        }
+                                    } : {
+                                        customer:{
+                                            cusName:{
+                                                contains:filter,
+                                                mode: 'insensitive'
+                                            }
+                                            
+                                        }
+                                    }
+                                ],
+                                invBus:busName
+                            },
+                            filter1 ? {invBus:{contains:filter1}} : {},
+                            filter2 ? {invStatus:{contains:filter2}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                ]
+                            } : {},
+                        ],
+                        mode:switchMode,
+                        deletedAt:null
+                    },
+                    include:{
+                        customer:{
+                            select:{
+                                cusName:true
+                            }
+                        }
+                    },
+                    orderBy:{
+                        createdAt:'desc'
+                    }
+                })
+                invoices.push(...invoiceByType)
+                invoiceTotal.push(...invoiceBytypeTotal)
             }
-        })
-        const totalFilter = totalValue.reduce((acc , curr) => acc + curr.balance,0)
-        const totalInvoicePage = await prisma.invoice.count()
-        const totalPages = Math.ceil(totalInvoicePage / takenValue)
+            totalInvoices = invoices.length;
+        }
+       
+        const totalFilter = invoiceTotal.reduce((acc , curr) => acc + curr.balance,0)
+        
+        const totalPages = Math.ceil(totalInvoices / takenValue)
+
         return res.status(200).json({
-            invoice,
+            invoices,
             totalFilter,
             pagination:{
                 page:+page,
@@ -77,6 +306,11 @@ export const getInvoice = async  (req,res) =>{
     }
 }
 
+
+
+
+
+
 export const getSingleInvoice = async (req,res) =>{
     try{
         const invId = req.params.id
@@ -87,6 +321,17 @@ export const getSingleInvoice = async (req,res) =>{
             where:{
                 id:invId,
                 deletedAt:null
+            },
+            include:{
+                customer:{
+                    select:{
+                        cusName:true,
+                        cusComp:true,
+                        cusPhone1:true,
+                        cusEmail:true,
+                        cusAddr:true
+                    }
+                }
             }
         })
         if(!singleInvoice){
@@ -121,27 +366,6 @@ export const getallInvoice  = async (req,res) =>{
             fuzzyFilteredResults = fuse.search(filter).map(result => result.item);
         }
         return res.status(200).json(fuzzyFilteredResults);
-    }catch(error){
-        return res.status(500).json({msg:error})
-    }
-}
-
-export const calculateTotal = async (req,res) =>{
-    try{
-        const data = await prisma.invoice.groupBy({
-            by:['mode'],
-            _sum:{
-                balance:true
-            },
-            where:{
-                deletedAt:null
-            }
-        })
-        if(!data){
-            return res.status(404).json({msg:"sorry not founded!"})
-        }else{
-            return res.status(200).json(data)
-        }
     }catch(error){
         return res.status(500).json({msg:error})
     }

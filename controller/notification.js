@@ -3,7 +3,7 @@ import getPrismaInstant from "../lib/prisma.js"
 const prisma = getPrismaInstant()
 
 export const getNotification = async (req,res) =>{
-    const { take='5' } = req.query
+    const { take='10' } = req.query
     try{
         const takeValue = +take
         const data = await prisma.invoice.findMany({

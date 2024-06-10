@@ -1,11 +1,12 @@
 import Fuse from "fuse.js";
 import getPrismaInstant from "../lib/prisma.js"
+import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
 export const getEmployee = async (req, res) => {
     try {
-        const { filter = '', take = "5", page = '1', filter1 = '', gender = '', occ = '' } = req.query;
+        const { filter = '', take = "15", page = '1', filter1 = '', gender = '', occ = '' } = req.query;
 
         let takenValue = +take;
         let skip = (+page - 1) * takenValue;
@@ -17,14 +18,13 @@ export const getEmployee = async (req, res) => {
                 AND: [
                     {
                         OR: [
-                            { empName: { contains: filter } },
-                            { empGender: { contains: filter } },
-                            { empOcc: { contains: filter } }
+                            { empName: { contains: filter , mode: 'insensitive'} },
+                            { empGender: { contains: filter , mode: 'insensitive'} }
                         ]
                     },
-                    filter1 ? { empName: { contains: filter1 } } : {},
-                    gender ? { empGender: { contains: gender } } : {},
-                    occ ? { empOcc: { contains: occ } } : {}
+                    filter1 ? { empName: { contains: filter1 , mode: 'insensitive'} } : {},
+                    gender ? { empGender: { contains: gender , mode: 'insensitive'} } : {},
+                    occ ? { empOcc: {contains:occ , mode: 'insensitive'} } : {}
                 ]
             },
             orderBy: {
@@ -85,6 +85,42 @@ export const getAllEmp = async(req,res) =>{
 
         const fuse = new Fuse(emps, {
             keys: ['empName', 'empOcc', 'empPhone'],
+            threshold: 0.3,
+            includeScore: true
+        });
+
+        let fuzzyFilteredResults = emps;
+
+        // Apply filters
+        if (filter) {
+            fuzzyFilteredResults = fuse.search(filter).map(result => result.item);
+        }
+
+        if (occupationFilter) {
+            fuzzyFilteredResults = fuzzyFilteredResults.filter(emp => emp.empOcc.includes(occupationFilter));
+        }
+
+        if(phone){
+            fuzzyFilteredResults = fuzzyFilteredResults.filter(emp => emp.empPhone.includes(phone))
+        }
+
+        return res.status(200).json(fuzzyFilteredResults);
+    }catch(error){
+        return res.status(500).json({msg:error})
+    }
+}
+
+
+export const getAllEmps = async(req,res) =>{
+    try{
+        const { filter, phone, occupationFilter } = req.query;
+
+        const emps = await prisma.emp.groupBy({
+            by:['empOcc']
+        });
+
+        const fuse = new Fuse(emps, {
+            keys: ['empOcc'],
             threshold: 0.3,
             includeScore: true
         });

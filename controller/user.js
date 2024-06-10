@@ -1,11 +1,14 @@
 import getPrismaInstant from "../lib/prisma.js"
+import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
 export const getUser = async (req,res) =>{
  try{
-    const {filter = '' , taken = "5" , page = '1'} = req.query
+    const {filter = '' , taken = "15" , page = '1'} = req.query
     
+    const tranformedFilter = filterLowerCasePreserveCase(filter)
+
     let takenValue = +taken;
     let skip = (+page - 1) * takenValue
     
@@ -16,8 +19,8 @@ export const getUser = async (req,res) =>{
             AND:[
                 {
                     OR:[
-                        {name:{contains:filter}},
-                        {email:{contains:filter}}
+                        {name:{contains:tranformedFilter}},
+                        {email:{contains:tranformedFilter}}
                     ]
                 }
             ]

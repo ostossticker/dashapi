@@ -74,6 +74,83 @@ export const dailyInvoice = async (req,res) =>{
 }
 
 
+
+const dailyPaid = async (req,res) =>{
+    const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const todayEnd = new Date(todayStart);
+        todayEnd.setDate(todayEnd.getDate() + 1);
+
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+
+    try{
+        const todaye = await prisma.invoice.findMany({
+            where:{
+                mode:'invoice',
+                invDate:{
+                    gte: yesterdayStart.toISOString(),
+                     lt: todayStart.toISOString()
+                },
+                invStatus: 'paid',
+                deletedAt:null
+            },
+            select:{
+                balance:true
+            }
+        })
+
+        const yesterdaye = await prisma.invoice.findMany({
+            where:{
+                mode:'invoice',
+                invDate:{
+                    gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
+                    lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
+                },
+                invStatus: 'paid',
+                deletedAt:null
+            },
+            select:{
+                balance:true
+            }
+        })
+
+        const caltoday = todaye.reduce((acc , curr) => acc + curr.balance , 0);
+        const calyesterday = yesterdaye.reduce((acc , curr)=>acc + curr.balance , 0);
+
+        
+
+        return {caltoday , calyesterday};
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({msg:error})
+    }
+}
+
+const calculatePercentageChangePaid = (todayTotal, yesterdayTotal) => {
+    const change = todayTotal - yesterdayTotal;
+    const percentageChange = ((todayTotal - yesterdayTotal) / yesterdayTotal);
+
+    const changeType = change > 0 ? "increase" : (change < 0 ? "decrease" : "no change");
+    
+    return { percentageChange, changeType };
+};
+export const dailyInvoicePaid = async (req,res) =>{
+    try {
+        const { caltoday , calyesterday , grandTotal } = await dailyPaid();
+        const { percentageChange, changeType } = calculatePercentageChangePaid(caltoday , calyesterday);
+        return res.status(200).json({ caltoday , calyesterday , percentageChange, changeType });
+    } catch (error) {
+        console.error('Error retrieving data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
+
+
+
 const calculateMonthlyInvoiceSales = async () => {
     const today = new Date();
     const currentMonthFirstDay = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
@@ -252,21 +329,25 @@ const calculateCustomer = async () =>{
     const lastMonthFirstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1); // First day of the last month
     const lastMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of the last month
 
-    const thisMonthCustomerCount = await prisma.customer.count({
+    const thisMonthCustomerCount = await prisma.invoice.count({
         where: {
-            createdAt: {
+            mode: 'invoice',
+            invDate: {
                 gte: new Date(currentMonthFirstDay.getFullYear() , currentMonthFirstDay.getMonth() , currentMonthFirstDay.getDate() - 1).toISOString(),
                 lt: new Date(currentMonthLastDay.getFullYear() , currentMonthLastDay.getMonth() , currentMonthLastDay.getDate() -1).toISOString()
             },
+            deletedAt: null
         }
     });
 
-    const lastMonthCustomerCount = await prisma.customer.count({
+    const lastMonthCustomerCount = await prisma.invoice.count({
         where: {
-            createdAt: {
+            mode: 'invoice',
+            invDate: {
                 gte: new Date(lastMonthFirstDay.getFullYear() , lastMonthFirstDay.getMonth() , lastMonthFirstDay.getDate() - 1).toISOString(),
                 lt: new Date(lastMonthLastDay.getFullYear() , lastMonthLastDay.getMonth() , lastMonthLastDay.getDate() - 1).toISOString()
             },
+            deletedAt: null
         }
     });
 
@@ -493,7 +574,7 @@ export const historyTotal = async (req,res) =>{
 }
 
 export const recentlyActivity = async (req, res) => {
-    const { page = '1', take = '5', filterDate = '' } = req.query;
+    const { page = '1', take = '6', filterDate = '' } = req.query;
     try {
         const takenValue = +take;
         const skip = (+page - 1) * takenValue;
@@ -558,6 +639,7 @@ export const chart = async (req, res) => {
     try {
         const data = await prisma.invoice.findMany({
             where: {
+                mode:'invoice',
                 deletedAt: null
             },
             orderBy: {
@@ -631,7 +713,6 @@ export const reportStuff = async (req, res) => {
             const count = await prisma.invoice.count({
                 where: {
                     AND: [
-                        { cusName1: { not: null } }, // Filter out null values
                         { invDate: { gte: `${filterYear}-${month.toString().padStart(2, '0')}-01` } }, // Start of month
                         { invDate: { lte: `${filterYear}-${month.toString().padStart(2, '0')}-31` } }    // End of month
                     ],
@@ -742,6 +823,7 @@ export const telegram = async (req,res) =>{
                     gte: yesterdayStart.toISOString(),
                     lt: todayStart.toISOString()
                 },
+                deletedAt:null
             },
         })
         const todayPaid = await prisma.invoice.findMany({
@@ -752,6 +834,7 @@ export const telegram = async (req,res) =>{
                     gte: yesterdayStart.toISOString(),
                     lt: todayStart.toISOString()
                 },
+                deletedAt:null
             }
         })
         const calExp = todayExp.reduce((acc,curr)=>acc + curr.purPrice,0)
