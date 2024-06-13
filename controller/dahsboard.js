@@ -269,19 +269,17 @@ export const getUnpaid = async (req,res) =>{
 
 const calculateExpense = async () =>{
     const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const todayEnd = new Date(todayStart);
-    todayEnd.setDate(todayEnd.getDate() + 1);
+    const currentMonthFirstDay = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the current month
+    const currentMonthLastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of the current month
 
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+    const lastMonthFirstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1); // First day of the last month
+    const lastMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of the last month
 
     const todaye = await prisma.purchase.findMany({
         where:{
             purSince:{
-                gte: yesterdayStart.toISOString(),
-                lt: todayStart.toISOString()
+                gte: new Date(currentMonthFirstDay.getFullYear() , currentMonthFirstDay.getMonth() , currentMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(currentMonthLastDay.getFullYear() , currentMonthLastDay.getMonth() , currentMonthLastDay.getDate() -1).toISOString()
             },
         },
         select:{
@@ -292,8 +290,8 @@ const calculateExpense = async () =>{
     const yesterdaye = await prisma.purchase.findMany({
         where:{
             purSince:{
-                gte:new Date(todayStart.getFullYear() , todayStart.getMonth() , todayStart.getDate() - 2).toISOString() ,
-                lt:new Date(todayEnd.getFullYear() , todayEnd.getMonth() , todayEnd.getDate() - 2).toISOString()
+                gte: new Date(lastMonthFirstDay.getFullYear() , lastMonthFirstDay.getMonth() , lastMonthFirstDay.getDate() - 1).toISOString(),
+                lt: new Date(lastMonthLastDay.getFullYear() , lastMonthLastDay.getMonth() , lastMonthLastDay.getDate() - 1).toISOString()
             },
         },
         select:{

@@ -8,8 +8,6 @@ export const getPurchase = async (req,res) =>{
  try{
     const { filter = '', name = '' , take = '15', page = '1', filter1 = '' , fromDate, toDate } = req.query;
     
-    const tranformedFilter = filterLowerCasePreserveCase(filter)
-
     let takenValue = +take;
     let skip = (+page - 1) * takenValue
 
@@ -29,8 +27,8 @@ export const getPurchase = async (req,res) =>{
                 AND:[
                     {
                         OR:[
-                            {purName:{contains:tranformedFilter}},
-                            {purSupp:{contains:tranformedFilter}},
+                            {purName:{contains:filter , mode:'insensitive'}},
+                            {purSupp:{contains:filter , mode: 'insensitive'}},
                         ]
                     },
                     filter1 ? {purBus:{contains:filter1}} : {},
@@ -46,8 +44,8 @@ export const getPurchase = async (req,res) =>{
                 AND:[
                     {
                         OR:[
-                            {purName:{contains:tranformedFilter}},
-                            {purSupp:{contains:tranformedFilter}},
+                            {purName:{contains:filter , mode: 'insensitive'}},
+                            {purSupp:{contains:filter , mode: 'insensitive'}},
                         ]
                     },
                     filter1 ? {purBus:{contains:filter1}} : {},
@@ -65,8 +63,8 @@ export const getPurchase = async (req,res) =>{
                     AND:[
                         {
                             OR:[
-                                {purName:{contains:tranformedFilter}},
-                                {purSupp:{contains:tranformedFilter}},
+                                {purName:{contains:filter , mode: 'insensitive'}},
+                                {purSupp:{contains:filter , mode: 'insensitive'}},
                             ],
                             purBus:busName
                         },

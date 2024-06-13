@@ -34,7 +34,7 @@ export const getProduct = async (req,res) =>{
                 ]
             },
             orderBy:{
-                createdAt:'desc'
+                prodItemName:'asc'
             }
         })
         totalProduct = await prisma.product.count({
@@ -67,7 +67,7 @@ export const getProduct = async (req,res) =>{
                     ]
                 },
                 orderBy:{
-                    createdAt:'desc'
+                    prodItemName:'asc'
                 }
             }) 
             products.push(...productBytype)

@@ -1,6 +1,5 @@
 import Fuse from "fuse.js";
 import getPrismaInstant from "../lib/prisma.js"
-import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
@@ -19,7 +18,7 @@ export const getEmployee = async (req, res) => {
                     {
                         OR: [
                             { empName: { contains: filter , mode: 'insensitive'} },
-                            { empGender: { contains: filter , mode: 'insensitive'} }
+                            { empPhone: { contains: filter , mode: 'insensitive'} }
                         ]
                     },
                     filter1 ? { empName: { contains: filter1 , mode: 'insensitive'} } : {},
@@ -28,24 +27,18 @@ export const getEmployee = async (req, res) => {
                 ]
             },
             orderBy: {
-                creatdAt: 'desc'
+                empName: 'asc'
             }
         });
 
         // Implementing fuzzy search using fuse.js
-        const fuse = new Fuse(employ, {
-            keys: ['empName', 'empGender', 'empOcc'],
-            threshold:0.2,
-            includeScore: true
-        });
 
-        const fuzzyFilteredResults = filter ? fuse.search(filter).map(result => result.item) : employ;
 
         const totalEmployee = await prisma.emp.count();
         const totalPages = Math.ceil(totalEmployee / takenValue);
 
         return res.status(200).json({
-            employ: fuzzyFilteredResults,
+            employ,
             pagination: {
                 page: +page,
                 totalPages

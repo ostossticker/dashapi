@@ -29,8 +29,7 @@ export const getCustomer = async (req,res,next) =>{
                         OR:[
                             {cusName:{contains:filter , 
                                 mode: 'insensitive'}},
-                            {cusBus:{contains:filter , 
-                                mode: 'insensitive'}}
+                            {cusPhone1:{contains:filter , mode:'insensitive'}}
                         ]
                     },
                     filter1 ? {cusBus:{contains:filter1 , 
@@ -38,7 +37,7 @@ export const getCustomer = async (req,res,next) =>{
                 ],
             },
             orderBy:{
-                createdAt:'desc'
+                cusName:'asc'
             }
         })
         totalCustomers = await prisma.customer.count({
@@ -48,8 +47,7 @@ export const getCustomer = async (req,res,next) =>{
                         OR:[
                             {cusName:{contains:filter , 
                                 mode: 'insensitive'}},
-                            {cusBus:{contains:filter , 
-                                mode: 'insensitive'}}
+                            {cusPhone1:{contains:filter , mode:'insensitive'}}
                         ]
                     },
                     filter1 ? {cusBus:{contains:filter1 , 
@@ -68,7 +66,8 @@ export const getCustomer = async (req,res,next) =>{
                         {
                             OR:[
                                 {cusName:{contains:filter , 
-                                    mode: 'insensitive'}}
+                                    mode: 'insensitive'}},
+                                    {cusPhone1:{contains:filter , mode:'insensitive'}}
                             ],
                             cusBus:busName
                         },
@@ -77,7 +76,7 @@ export const getCustomer = async (req,res,next) =>{
                     ],
                 },
                 orderBy:{
-                    createdAt:'desc'
+                    cusName:'asc'
                 }
             })
             customers.push(...customerByType)

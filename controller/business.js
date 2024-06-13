@@ -1,6 +1,5 @@
 import Fuse from "fuse.js";
 import getPrismaInstant from "../lib/prisma.js"
-import filterLowerCasePreserveCase from "../lib/functions.js";
 
 const prisma = getPrismaInstant()
 
@@ -29,7 +28,7 @@ export const getBusiness = async (req,res) =>{
               ],
             },
             orderBy: {
-              createdAt: 'desc'
+              busName: 'asc'
             }
           });
           totalBusiness = await prisma.business.count({
@@ -54,7 +53,7 @@ export const getBusiness = async (req,res) =>{
                 busName: busName,
               },
               orderBy: {
-                createdAt: 'desc'
+                busName: 'asc'
               }
             });
             businesses.push(...businessesByType);
@@ -67,7 +66,7 @@ export const getBusiness = async (req,res) =>{
         return res.status(200).json({
           buses: businesses,
           pagination: {
-            page: +page,
+            page:+page,
             totalPages
           }
         });
