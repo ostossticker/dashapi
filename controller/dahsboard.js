@@ -659,7 +659,7 @@ export const chart = async (req, res) => {
             // Convert map into an array of objects [{ invDate, balance }]
             const result = Object.keys(balancesByYearMonth).map(yearMonth => ({
                 createdAt: yearMonth,
-                balance: balancesByYearMonth[yearMonth]
+                balance: balancesByYearMonth[yearMonth].toFixed(2)
             }));
 
             return res.status(200).json(result);
