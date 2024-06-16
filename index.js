@@ -18,6 +18,7 @@ import { adminRoute } from './routes/admin.js';
 import { dashRoute } from './routes/dashboard.js';
 import filterLowerCasePreserveCase from './lib/functions.js';
 import { noteRoute } from './routes/note.js';
+import { payPaid } from './controller/payment.js';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use('/api',notiRoute)
 app.use('/api',adminRoute)
 app.use('/api',dashRoute)
 app.use('/api',noteRoute)
+
 
 app.get('/test',async(req,res)=>{
     try{

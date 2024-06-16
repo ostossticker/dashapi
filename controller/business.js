@@ -114,6 +114,9 @@ export const getAllBusiness = async (req,res) =>{
                 const businessByType = await prisma.business.findMany({
                     where:{
                         busName
+                    },
+                    orderBy: {
+                      busName: 'asc'
                     }
                 })
                 buss.push(...businessByType)

@@ -121,7 +121,11 @@ export const getSingleCustomer = async (req,res) =>{
 export const getAllCustomer = async (req,res) =>{
     try{
         const {filter , phone,business} = req.query
-        const purss = await prisma.customer.findMany({})
+        const purss = await prisma.customer.findMany({
+            orderBy:{
+                cusName:'asc'
+            }
+        })
         const fuse = new Fuse(purss,{
             keys: ['cusName','cusPhone1','cusBus'],
             threshold: 0.3,

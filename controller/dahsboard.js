@@ -714,6 +714,7 @@ export const reportStuff = async (req, res) => {
                         { invDate: { gte: `${filterYear}-${month.toString().padStart(2, '0')}-01` } }, // Start of month
                         { invDate: { lte: `${filterYear}-${month.toString().padStart(2, '0')}-31` } }    // End of month
                     ],
+                    mode:'invoice',
                     deletedAt:null
                 }
             });
@@ -733,6 +734,7 @@ export const reportStuff = async (req, res) => {
                         { invDate: { gte: `${filterYear}-${month.toString().padStart(2, '0')}-01` } }, // Start of month
                         { invDate: { lte: `${filterYear}-${month.toString().padStart(2, '0')}-31` } }    // End of month
                     ],
+                    mode:'invoice',
                     deletedAt:null
                 }
             })
@@ -742,6 +744,7 @@ export const reportStuff = async (req, res) => {
                         { invDate: { gte: `${filterYear}-${month.toString().padStart(2, '0')}-01` } }, // Start of month
                         { invDate: { lte: `${filterYear}-${month.toString().padStart(2, '0')}-31` } }    // End of month
                     ],
+                    mode:'invoice',
                     deletedAt:null
                 },
                 select:{

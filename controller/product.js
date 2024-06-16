@@ -111,7 +111,11 @@ export const getSingleProduct = async (req,res) =>{
 export const getAllProducts = async (req,res) =>{
     try{
         const {filter} = req.query
-        const prods = await prisma.product.findMany({})
+        const prods = await prisma.product.findMany({
+            orderBy:{
+                prodItemName:'asc'
+            }
+        })
         const fuse = new Fuse(prods,{
             keys:['prodItemName','prodBus'],
             threshold:0.3,

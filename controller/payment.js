@@ -306,3 +306,49 @@ export const getallPayment  = async (req,res) =>{
         return res.status(500).json({msg:error})
     }
 }
+
+export const payPaid = async (req,res) =>{
+    
+    try{
+        const {name} = req.query
+        let total
+        const user = await prisma.user.findFirst({
+            where:{
+                name:name
+            }
+        })
+        if(user.role === "ADMIN"){
+            total = await prisma.invoice.groupBy({
+                by:['invStatus'],
+                where:{
+                    mode:'invoice',
+                    deletedAt:null
+                },
+                _sum:{
+                    balance:true
+                }
+            })
+        }else{
+            total = []
+            for(const busName of user.businessType){
+                const invTotal = await prisma.invoice.groupBy({
+                    by:['invStatus'],
+                    where:{
+                        mode:'invoice',
+                        deletedAt:null,
+                        invBus:busName
+                    },
+                    _sum:{
+                        balance:true
+                    }
+                })
+                total.push(...invTotal)
+            }
+        }
+        
+        return res.status(200).json(total)
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({msg:error.message})
+    }
+}
