@@ -30,6 +30,7 @@ export const getInvoice = async  (req,res) =>{
                                 OR:[
                                     {invNo:{contains:filter , mode: 'insensitive'}},
                                     {invTitle:{contains:filter , mode: 'insensitive'}},
+                                    {invCusPhone:{contains:filter , mode:'insensitive'}},
                                     isNumeric(filter) ? 
                                     {
                                         customer:{
@@ -82,6 +83,7 @@ export const getInvoice = async  (req,res) =>{
                             OR:[
                                 {invNo:{contains:filter , mode: 'insensitive'}},
                                 {invTitle:{contains:filter , mode: 'insensitive'}},
+                                {invCusPhone:{contains:filter , mode:'insensitive'}},
                                 isNumeric(filter) ? 
                                 {
                                     customer:{
@@ -136,6 +138,7 @@ export const getInvoice = async  (req,res) =>{
                                 {invTitle:{contains:filter,
                                     mode: 'insensitive'
                                 }},
+                                {invCusPhone:{contains:filter , mode:'insensitive'}},
                                 isNumeric(filter) ? 
                                 {
                                     customer:{
@@ -184,6 +187,7 @@ export const getInvoice = async  (req,res) =>{
                                     {invTitle:{contains:filter,
                                         mode: 'insensitive'
                                     }},
+                                    {invCusPhone:{contains:filter , mode:'insensitive'}},
                                     isNumeric(filter) ? 
                                     {
                                         customer:{
@@ -238,6 +242,7 @@ export const getInvoice = async  (req,res) =>{
                                     {invTitle:{contains:filter,
                                         mode: 'insensitive'
                                     }},
+                                    {invCusPhone:{contains:filter , mode:'insensitive'}},
                                     isNumeric(filter) ? 
                                     {
                                         customer:{

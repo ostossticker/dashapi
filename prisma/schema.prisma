@@ -113,6 +113,7 @@ model Invoice {
   toggleAddress Boolean @default(false)
   toggleSignature Boolean @default(false)
   //////toggle stuff
+  invCusPhone String?
   invNo String?
   invPo String?
   invTitle String?
@@ -177,6 +178,7 @@ model Quotation {
   toggleSignature Boolean @default(false)
   toggleEmployee Boolean @default(false)
   //////toggle stuff
+  invCusPhone String?
   staffName String?
   staffPhone String?
   staffTelegram String?

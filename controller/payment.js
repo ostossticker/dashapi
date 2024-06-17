@@ -33,6 +33,7 @@ export const getPayData = async (req,res) =>{
                                         {invNo:{contains:filter,
                                             mode: 'insensitive'
                                         }},
+                                        {invCusPhone:{contains:filter , mode:'insensitive'}},
                                         isNumeric(filter) ? 
                                         {
                                             customer:{
@@ -96,6 +97,7 @@ export const getPayData = async (req,res) =>{
                                 {invNo:{contains:filter,
                                     mode: 'insensitive'
                                 }},
+                                {invCusPhone:{contains:filter , mode:'insensitive'}},
                                 isNumeric(filter) ? 
                                 {
                                     customer:{
@@ -153,6 +155,7 @@ export const getPayData = async (req,res) =>{
                                             {invNo:{contains:filter,
                                                 mode: 'insensitive'
                                             }},
+                                            {invCusPhone:{contains:filter , mode:'insensitive'}},
                                             isNumeric(filter) ? 
                                             {
                                                 customer:{
@@ -205,7 +208,7 @@ export const getPayData = async (req,res) =>{
                     })            
     
                 }else if (switched === 'group'){
-                    paymentbyType = await groupByWithInclude('invoice', ['customer.cusName', 'customer.cusComp', 'customer.cusPhone1', 'invBus', 'invStatus'], { customer: true }, page, take, filter1, filter2, fromDate, toDate, filter,'non',busName);
+                    paymentbyType = await groupByWithInclude('invoice', ['customer.cusName', 'customer.cusComp', 'customer.cusPhone1', 'invBus', 'invStatus','invCusPhone'], { customer: true }, page, take, filter1, filter2, fromDate, toDate, filter,'non',busName);
                 }
                 if(!payment){
                     return res.status(404).json({msg:"sorry not founded!"})
@@ -218,6 +221,7 @@ export const getPayData = async (req,res) =>{
                                     {invNo:{contains:filter,
                                             mode: 'insensitive'
                                         }},
+                                        {invCusPhone:{contains:filter , mode:'insensitive'}},
                                     isNumeric(filter) ? 
                                     {
                                         customer:{

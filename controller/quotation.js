@@ -28,7 +28,7 @@ export const getQuotation = async  (req,res) =>{
                                     mode: 'insensitive'}},
                                 {qtTitle:{contains:filter ,
                                     mode: 'insensitive'}},
-
+                                {invCusPhone:{contains:filter , mode:'insensitive'}},
                                 {
                                     customer:{
                                         cusPhone1:{
@@ -77,7 +77,7 @@ export const getQuotation = async  (req,res) =>{
                                     mode: 'insensitive'}},
                                 {qtTitle:{contains:filter,
                                     mode: 'insensitive'}},
-
+                                {invCusPhone:{contains:filter , mode:'insensitive'}},
                                 {
                                     customer:{
                                         cusPhone1:{
@@ -124,6 +124,7 @@ export const getQuotation = async  (req,res) =>{
                                     mode: 'insensitive'}},
                                 {qtTitle:{contains:filter,
                                     mode: 'insensitive'}},
+                                    {invCusPhone:{contains:filter , mode:'insensitive'}},
 
                                 {
                                     customer:{
@@ -165,6 +166,7 @@ export const getQuotation = async  (req,res) =>{
                                         mode: 'insensitive'}},
                                     {qtTitle:{contains:filter,
                                         mode: 'insensitive'}},
+                                        {invCusPhone:{contains:filter , mode:'insensitive'}},
     
                                     {
                                         customer:{
@@ -212,6 +214,7 @@ export const getQuotation = async  (req,res) =>{
                                         mode: 'insensitive'}},
                                     {qtTitle:{contains:filter,
                                         mode: 'insensitive'}},
+                                        {invCusPhone:{contains:filter , mode:'insensitive'}},
     
                                     {
                                         customer:{
