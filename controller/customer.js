@@ -27,8 +27,7 @@ export const getCustomer = async (req,res,next) =>{
                 AND:[
                     {
                         OR:[
-                            {cusName:{contains:filter , 
-                                mode: 'insensitive'}},
+                            {cusName:{contains:filter ,  mode: 'insensitive'}},
                             {cusPhone1:{contains:filter , mode:'insensitive'}},
                             {cusPhone2:{contains:filter , mode:'insensitive'}}
                         ]
@@ -46,8 +45,7 @@ export const getCustomer = async (req,res,next) =>{
                 AND:[
                     {
                         OR:[
-                            {cusName:{contains:filter , 
-                                mode: 'insensitive'}},
+                            {cusName:{contains:filter ,  mode: 'insensitive'}},
                             {cusPhone1:{contains:filter , mode:'insensitive'}},
                             {cusPhone2:{contains:filter , mode:'insensitive'}}
                         ]
@@ -67,10 +65,9 @@ export const getCustomer = async (req,res,next) =>{
                     AND:[
                         {
                             OR:[
-                                {cusName:{contains:filter , 
-                                    mode: 'insensitive'}},
-                                    {cusPhone1:{contains:filter , mode:'insensitive'}},
-                                    {cusPhone2:{contains:filter , mode:'insensitive'}}
+                                {cusName:{contains:filter , mode: 'insensitive'}},
+                                {cusPhone1:{contains:filter , mode:'insensitive'}},
+                                {cusPhone2:{contains:filter , mode:'insensitive'}}
                             ],
                             cusBus:busName
                         },

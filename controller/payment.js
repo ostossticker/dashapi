@@ -84,7 +84,65 @@ export const getPayData = async (req,res) =>{
                     }
                 })            
             }else if (switched === 'group'){
-                payment = await groupByWithInclude('invoice', ['customer.cusName', 'customer.cusComp', 'customer.cusPhone1', 'invBus', 'invStatus'], { customer: true }, page, take, filter1, filter2, fromDate, toDate, filter,'ADMIN');
+                const invoices = await prisma.invoice.findMany({
+                    where:{
+                        AND:[
+                            {
+                                OR:[
+                                     {
+                                      customer:{
+                                          cusName:{
+                                              contains:filter,
+                                              mode: 'insensitive'
+                                          }
+                                      }
+                                    }
+                                ]
+                            },
+                            filter1 ? {invBus:{contains:filter1}} : {},
+                            { deletedAt: null },
+                            { mode: 'invoice' }
+                        ]
+                    },
+                    include: {
+                      customer: true,
+                    },
+                    orderBy: {
+                      invDate: 'asc', // Optional: Order by invoice date if needed
+                    },
+                  });
+              
+                  // Create a map to group invoices by cusName and invBus
+                  const groupedInvoices = invoices.reduce((acc, invoice) => {
+                    const key = `${invoice.customer.cusName}_${invoice.invBus}`;
+                    if (!acc[key]) {
+                      acc[key] = {
+                        cusName: invoice.customer.cusName,
+                        cusComp: invoice.customer.cusComp || '', // Assuming cusComp is optional
+                        invBus: invoice.invBus,
+                        count: 0,
+                        total: 0, // Assuming cusPhone1 is the phone number
+                      };
+                    }
+              
+                    // Accumulate count and total
+                    acc[key].count++;
+                    acc[key].total += invoice.total || 0;
+              
+                    return acc;
+                  }, {});
+              
+                  // Convert object map to array and format the result as needed
+                payment = Object.values(groupedInvoices).map((item) => ({
+                    cusName1: item.cusName,
+                    cusComp: item.cusComp,
+                    invBus: item.invBus,
+                    cusNameCount: item.count,
+                    _sum: {
+                        balance:item.total
+                    },
+                  }));
+              
             }
             if(!payment){
                 return res.status(404).json({msg:"sorry not founded!"})
@@ -208,7 +266,66 @@ export const getPayData = async (req,res) =>{
                     })            
     
                 }else if (switched === 'group'){
-                    paymentbyType = await groupByWithInclude('invoice', ['customer.cusName', 'customer.cusComp', 'customer.cusPhone1', 'invBus', 'invStatus','invCusPhone'], { customer: true }, page, take, filter1, filter2, fromDate, toDate, filter,'non',busName);
+                    const invoices = await prisma.invoice.findMany({
+                        where:{
+                            AND:[
+                                {
+                                    OR:[
+                                         {
+                                          customer:{
+                                              cusName:{
+                                                  contains:filter,
+                                                  mode: 'insensitive'
+                                              }
+                                          }
+                                        }
+                                    ],
+                                    invBus:busName
+                                },
+                                filter1 ? {invBus:{contains:filter1}} : {},
+                                { deletedAt: null },
+                                { mode: 'invoice' }
+                            ],
+                            invBus:busName
+                        },
+                        include: {
+                          customer: true,
+                        },
+                        orderBy: {
+                          invDate: 'asc', // Optional: Order by invoice date if needed
+                        },
+                      });
+                  
+                      // Create a map to group invoices by cusName and invBus
+                      const groupedInvoices = invoices.reduce((acc, invoice) => {
+                        const key = `${invoice.customer.cusName}_${invoice.invBus}`;
+                        if (!acc[key]) {
+                          acc[key] = {
+                            cusName: invoice.customer.cusName,
+                            cusComp: invoice.customer.cusComp || '', // Assuming cusComp is optional
+                            invBus: invoice.invBus,
+                            count: 0,
+                            total: 0, // Assuming cusPhone1 is the phone number
+                          };
+                        }
+                  
+                        // Accumulate count and total
+                        acc[key].count++;
+                        acc[key].total += invoice.total || 0;
+                  
+                        return acc;
+                      }, {});
+                  
+                      // Convert object map to array and format the result as needed
+                    paymentbyType = Object.values(groupedInvoices).map((item) => ({
+                        cusName1: item.cusName,
+                        cusComp: item.cusComp,
+                        invBus: item.invBus,
+                        cusNameCount: item.count,
+                        _sum: {
+                            balance:item.total
+                        },
+                      }));
                 }
                 if(!payment){
                     return res.status(404).json({msg:"sorry not founded!"})
