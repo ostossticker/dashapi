@@ -77,6 +77,60 @@ app.get('/payment',async(req,res)=>{
           if (!acc[key]) {
             acc[key] = {
               cusName: invoice.customer.cusName,
+              cusComp: invoice.customer.cusComp || '', // Assuming cusComp is optional
+              invBus: invoice.invBus,
+              count: 0,
+              total: 0,
+              phoneNumber: invoice.customer.cusPhone1 || '', // Assuming cusPhone1 is the phone number
+            };
+          }
+    
+          // Accumulate count and total
+          acc[key].count++;
+          acc[key].total += invoice.total || 0;
+    
+          return acc;
+        }, {});
+    
+        // Convert object map to array and format the result as needed
+        const formattedResult = Object.values(groupedInvoices).map((item) => ({
+          cusName: item.cusName,
+          cusComp: item.cusComp,
+          invBus: item.invBus,
+          count: item.count,
+          phoneNumber: item.phoneNumber,
+          total: item.total,
+        }));
+    
+        // Log or return the formatted result
+        console.log(formattedResult);
+        return res.status(200).json(formattedResult);
+    
+      } catch (error) {
+        console.error('Error fetching invoices:', error);
+        throw error;
+      } finally {
+        await prisma.$disconnect();
+      }
+})
+
+app.get('/payments',async(req,res)=>{
+    try {
+        const invoices = await prisma.invoice.findMany({
+          include: {
+            customer: true,
+          },
+          orderBy: {
+            invDate: 'asc', // Optional: Order by invoice date if needed
+          },
+        });
+    
+        // Create a map to group invoices by cusName and invBus
+        const groupedInvoices = invoices.reduce((acc, invoice) => {
+          const key = `${invoice.customer.cusName}_${invoice.invBus}`;
+          if (!acc[key]) {
+            acc[key] = {
+              cusName: invoice.customer.cusName,
               invBus: invoice.invBus,
               count: 0,
               totalPaid: 0,
