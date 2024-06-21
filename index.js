@@ -59,6 +59,63 @@ app.get('/test',async(req,res)=>{
         console.log(error)
     }
 })
+
+app.get('/payment',async(req,res)=>{
+    try {
+        const invoices = await prisma.invoice.findMany({
+          include: {
+            customer: true,
+          },
+          orderBy: {
+            invDate: 'asc', // Optional: Order by invoice date if needed
+          },
+        });
+    
+        // Create a map to group invoices by cusName and invBus
+        const groupedInvoices = invoices.reduce((acc, invoice) => {
+          const key = `${invoice.customer.cusName}_${invoice.invBus}`;
+          if (!acc[key]) {
+            acc[key] = {
+              cusName: invoice.customer.cusName,
+              invBus: invoice.invBus,
+              count: 0,
+              totalPaid: 0,
+              invoices: [],
+            };
+          }
+    
+          // Accumulate count and totalPaid
+          acc[key].count++;
+          if (invoice.invStatus === 'Paid') {
+            acc[key].totalPaid += invoice.total || 0;
+          }
+    
+          // Add invoice details to the invoices array
+          acc[key].invoices.push({
+            id: invoice.id,
+            invNo: invoice.invNo,
+            invStatus: invoice.invStatus,
+            total: invoice.total,
+            invDate: invoice.invDate,
+            updatedAt: invoice.updatedAt,
+            // Add more fields as needed
+          });
+    
+          return acc;
+        }, {});
+    
+        // Convert object map to array if needed
+        const groupedInvoiceArray = Object.values(groupedInvoices);
+    
+        // Log or return the grouped invoices
+        return res.status(200).json(groupedInvoiceArray);
+    
+      } catch (error) {
+        console.error('Error fetching invoices:', error);
+      } finally {
+        await prisma.$disconnect();
+      }
+})
   
 app.listen(port , ()=>{
     console.log(`server running on port ${port}`)

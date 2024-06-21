@@ -15,10 +15,10 @@ export const getBusiness = async (req,res) =>{
           }
         });
     
-        let businesses;
+        let buses;
         let totalBusiness;
         if (user.role === "ADMIN") {
-          businesses = await prisma.business.findMany({
+          buses = await prisma.business.findMany({
             take: takenValue,
             skip,
             where: {
@@ -40,7 +40,7 @@ export const getBusiness = async (req,res) =>{
             }
           });
         } else {
-          businesses = [];
+          buses = [];
           for (const busName of user.businessType) {
             const businessesByType = await prisma.business.findMany({
               take: takenValue,
@@ -56,15 +56,15 @@ export const getBusiness = async (req,res) =>{
                 busName: 'asc'
               }
             });
-            businesses.push(...businessesByType);
+            buses.push(...businessesByType);
           }
-          totalBusiness = businesses.length; // Assuming businesses array contains all filtered businesses
+          totalBusiness = buses.length; // Assuming businesses array contains all filtered businesses
         }
     
         const totalPages = Math.ceil(totalBusiness / takenValue);
     
         return res.status(200).json({
-          buses: businesses,
+          buses,
           pagination: {
             page:+page,
             totalPages
