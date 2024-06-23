@@ -113,7 +113,11 @@ model Invoice {
   toggleAddress Boolean @default(false)
   toggleSignature Boolean @default(false)
   //////toggle stuff
+  invCusName String?
+  invCusComp String?
   invCusPhone String?
+  invCusEmail String?
+  invCusAddr String?
   invNo String?
   invPo String?
   invTitle String?
@@ -135,8 +139,6 @@ model Invoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
-  customerId String 
-  customer Customer @relation(fields: [customerId] , references: [id])
 }
 
 model Business {
@@ -178,7 +180,11 @@ model Quotation {
   toggleSignature Boolean @default(false)
   toggleEmployee Boolean @default(false)
   //////toggle stuff
+  invCusName String?
+  invCusComp String?
   invCusPhone String?
+  invCusEmail String?
+  invCusAddr String?
   staffName String?
   staffPhone String?
   staffTelegram String?
@@ -199,8 +205,6 @@ model Quotation {
   noti Boolean @default(true)
   enableNote Boolean @default(false)
   deletedAt DateTime?
-  customerId String 
-  customer Customer @relation(fields: [customerId] , references: [id])
 }
 
 model Receipt {
@@ -250,8 +254,6 @@ model Customer {
   cusWebsite String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  invoices Invoice[]
-  quotations Quotation[]
 }
 
 model Product {

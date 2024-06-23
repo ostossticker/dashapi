@@ -34,24 +34,8 @@ export const getPayData = async (req,res) =>{
                                             mode: 'insensitive'
                                         }},
                                         {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                        isNumeric(filter) ? 
-                                        {
-                                            customer:{
-                                                cusPhone1:{
-                                                    contains:filter, 
-                                                    mode: 'insensitive'
-                                                },
-                                                
-                                            }
-                                        } : {
-                                            customer:{
-                                                cusName:{
-                                                    contains:filter, 
-                                                    mode: 'insensitive'
-                                                }
-                                                
-                                            }
-                                        },
+                                        {invCusComp:{contains:filter , mode:'insensitive'}},
+                                        {invCusName:{contains:filter , mode:'insensitive'}},
                                         {invBus:{contains:filter , 
                                             mode: 'insensitive'}},
                                 ]
@@ -70,78 +54,39 @@ export const getPayData = async (req,res) =>{
                         mode:'invoice',
                         deletedAt:null
                     },
-                    include:{
-                        customer:{
-                            select:{
-                                cusName:true,
-                                cusComp:true,
-                                cusPhone1:true
-                            }
-                        }
-                    },
                     orderBy:{
                         createdAt:'desc'
                     }
                 })            
             }else if (switched === 'group'){
-                const invoices = await prisma.invoice.findMany({
+              
+                  payment = await prisma.invoice.groupBy({
+                    take:takenValue,
+                    skip,
+                    by:['invCusName','invBus','invCusComp'],
                     where:{
                         AND:[
                             {
                                 OR:[
-                                     {
-                                      customer:{
-                                          cusName:{
-                                              contains:filter,
-                                              mode: 'insensitive'
-                                          }
-                                      }
-                                    }
+                                    {invCusName:{contains:filter,mode:'insensitive'}}
                                 ]
                             },
-                            filter1 ? {invBus:{contains:filter1}} : {},
-                            { deletedAt: null },
-                            { mode: 'invoice' }
-                        ]
+                            filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
+                            filter2 ? {invStatus:{contains:filter2}} : {},
+                        ],
+                        mode: 'invoice',
+                        deletedAt:null
                     },
-                    include: {
-                      customer: true,
+                    _count:{
+                        invCusName:true
                     },
-                    orderBy: {
-                      invDate: 'asc', // Optional: Order by invoice date if needed
+                    _sum:{
+                        balance:true,
                     },
-                  });
-              
-                  // Create a map to group invoices by cusName and invBus
-                  const groupedInvoices = invoices.reduce((acc, invoice) => {
-                    const key = `${invoice.customer.cusName}_${invoice.invBus}`;
-                    if (!acc[key]) {
-                      acc[key] = {
-                        cusName: invoice.customer.cusName,
-                        cusComp: invoice.customer.cusComp || '', // Assuming cusComp is optional
-                        invBus: invoice.invBus,
-                        count: 0,
-                        total: 0, // Assuming cusPhone1 is the phone number
-                      };
-                    }
-              
-                    // Accumulate count and total
-                    acc[key].count++;
-                    acc[key].total += invoice.total || 0;
-              
-                    return acc;
-                  }, {});
-              
-                  // Convert object map to array and format the result as needed
-                payment = Object.values(groupedInvoices).map((item) => ({
-                    cusName1: item.cusName,
-                    cusComp: item.cusComp,
-                    invBus: item.invBus,
-                    cusNameCount: item.count,
-                    _sum: {
-                        balance:item.total
-                    },
-                  }));
+                    orderBy:{
+                        invCusName:'asc'
+                      }
+                  })
               
             }
             if(!payment){
@@ -156,24 +101,8 @@ export const getPayData = async (req,res) =>{
                                     mode: 'insensitive'
                                 }},
                                 {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                isNumeric(filter) ? 
-                                {
-                                    customer:{
-                                        cusPhone1:{
-                                            contains:filter, 
-                                            mode: 'insensitive'
-                                        },
-                                        
-                                    }
-                                } : {
-                                    customer:{
-                                        cusName:{
-                                            contains:filter, 
-                                            mode: 'insensitive'
-                                        }
-                                        
-                                    }
-                                },
+                                {invCusComp:{contains:filter , mode:'insensitive'}},
+                                {invCusName:{contains:filter , mode:'insensitive'}},
                                 {invBus:{contains:filter , 
                                     mode: 'insensitive'}},
                             ]
@@ -214,24 +143,8 @@ export const getPayData = async (req,res) =>{
                                                 mode: 'insensitive'
                                             }},
                                             {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                            isNumeric(filter) ? 
-                                            {
-                                                customer:{
-                                                    cusPhone1:{
-                                                        contains:filter, 
-                                                        mode: 'insensitive'
-                                                    },
-                                                    
-                                                }
-                                            } : {
-                                                customer:{
-                                                    cusName:{
-                                                        contains:filter, 
-                                                        mode: 'insensitive'
-                                                    }
-                                                    
-                                                }
-                                            },
+                                            {invCusComp:{contains:filter , mode:'insensitive'}},
+                                             {invCusName:{contains:filter , mode:'insensitive'}},
                                             {invBus:{contains:filter , 
                                                 mode: 'insensitive'}},
                                     ],
@@ -251,81 +164,40 @@ export const getPayData = async (req,res) =>{
                             mode:'invoice',
                             deletedAt:null
                         },
-                        include:{
-                            customer:{
-                                select:{
-                                    cusName:true,
-                                    cusComp:true,
-                                    cusPhone1:true
-                                }
-                            }
-                        },
                         orderBy:{
                             createdAt:'desc'
                         }
                     })            
     
                 }else if (switched === 'group'){
-                    const invoices = await prisma.invoice.findMany({
+                    paymentbyType = await prisma.invoice.groupBy({
+                        take:takenValue,
+                        skip,
+                        by:['invCusName','invBus','invCusComp'],
                         where:{
                             AND:[
                                 {
                                     OR:[
-                                         {
-                                          customer:{
-                                              cusName:{
-                                                  contains:filter,
-                                                  mode: 'insensitive'
-                                              }
-                                          }
-                                        }
-                                    ],
-                                    invBus:busName
+                                        {invCusName:{contains:filter,mode:'insensitive'}}
+                                    ]
                                 },
-                                filter1 ? {invBus:{contains:filter1}} : {},
-                                { deletedAt: null },
-                                { mode: 'invoice' }
+                                filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
+                                filter2 ? {invStatus:{contains:filter2}} : {},
                             ],
-                            invBus:busName
+                            invBus:busName,
+                            mode: 'invoice',
+                            deletedAt:null
                         },
-                        include: {
-                          customer: true,
+                        _count:{
+                            invCusName:true
                         },
-                        orderBy: {
-                          invDate: 'asc', // Optional: Order by invoice date if needed
+                        _sum:{
+                            balance:true,
                         },
-                      });
-                  
-                      // Create a map to group invoices by cusName and invBus
-                      const groupedInvoices = invoices.reduce((acc, invoice) => {
-                        const key = `${invoice.customer.cusName}_${invoice.invBus}`;
-                        if (!acc[key]) {
-                          acc[key] = {
-                            cusName: invoice.customer.cusName,
-                            cusComp: invoice.customer.cusComp || '', // Assuming cusComp is optional
-                            invBus: invoice.invBus,
-                            count: 0,
-                            total: 0, // Assuming cusPhone1 is the phone number
-                          };
-                        }
-                  
-                        // Accumulate count and total
-                        acc[key].count++;
-                        acc[key].total += invoice.total || 0;
-                  
-                        return acc;
-                      }, {});
-                  
-                      // Convert object map to array and format the result as needed
-                    paymentbyType = Object.values(groupedInvoices).map((item) => ({
-                        cusName1: item.cusName,
-                        cusComp: item.cusComp,
-                        invBus: item.invBus,
-                        cusNameCount: item.count,
-                        _sum: {
-                            balance:item.total
-                        },
-                      }));
+                        orderBy:{
+                            invCusName:'asc'
+                          }
+                      })
                 }
                 if(!payment){
                     return res.status(404).json({msg:"sorry not founded!"})
@@ -339,24 +211,8 @@ export const getPayData = async (req,res) =>{
                                             mode: 'insensitive'
                                         }},
                                         {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                    isNumeric(filter) ? 
-                                    {
-                                        customer:{
-                                            cusPhone1:{
-                                                contains:filter, 
-                                                mode: 'insensitive'
-                                            },
-                                            
-                                        }
-                                    } : {
-                                        customer:{
-                                            cusName:{
-                                                contains:filter, 
-                                                mode: 'insensitive'
-                                            }
-                                            
-                                        }
-                                    },
+                                    {invCusComp:{contains:filter , mode:'insensitive'}},
+                                    {invCusName:{contains:filter , mode:'insensitive'}},
                                     {invBus:{contains:filter , 
                                         mode: 'insensitive'}},
                                 ],
@@ -397,6 +253,7 @@ export const getPayData = async (req,res) =>{
             }
         })
     }catch(error){
+        console.log(error)
         return res.status(500).json({msg:error})
     }
 }

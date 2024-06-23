@@ -31,24 +31,7 @@ export const getInvoice = async  (req,res) =>{
                                     {invNo:{contains:filter , mode: 'insensitive'}},
                                     {invTitle:{contains:filter , mode: 'insensitive'}},
                                     {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                    isNumeric(filter) ? 
-                                    {
-                                        customer:{
-                                            cusPhone1:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            },
-                                            
-                                        }
-                                    } : {
-                                        customer:{
-                                            cusName:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            }
-                                            
-                                        }
-                                    }
+                                    {invCusName:{contains:filter , mode:'insensitive'}}
                                 ]
                             },
                             filter1 ? {invBus:{contains:filter1}} : {},
@@ -62,13 +45,6 @@ export const getInvoice = async  (req,res) =>{
                         ],
                         mode:switchMode,
                         deletedAt:null
-                    },
-                    include:{
-                        customer:{
-                            select:{
-                                cusName:true
-                            }
-                        }
                     },
                     orderBy:{
                         createdAt:'desc'
@@ -84,24 +60,7 @@ export const getInvoice = async  (req,res) =>{
                                 {invNo:{contains:filter , mode: 'insensitive'}},
                                 {invTitle:{contains:filter , mode: 'insensitive'}},
                                 {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                isNumeric(filter) ? 
-                                {
-                                    customer:{
-                                        cusPhone1:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        },
-                                        
-                                    }
-                                } : {
-                                    customer:{
-                                        cusName:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        }
-                                        
-                                    }
-                                }
+                                {invCusName:{contains:filter , mode:'insensitive'}}
                             ]
                         },
                         filter1 ? {invBus:{contains:filter1}} : {},
@@ -115,13 +74,6 @@ export const getInvoice = async  (req,res) =>{
                     ],
                     mode:switchMode,
                     deletedAt:null
-                },
-                include:{
-                    customer:{
-                        select:{
-                            cusName:true
-                        }
-                    }
                 },
                 orderBy:{
                     createdAt:'desc'
@@ -139,24 +91,7 @@ export const getInvoice = async  (req,res) =>{
                                     mode: 'insensitive'
                                 }},
                                 {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                isNumeric(filter) ? 
-                                {
-                                    customer:{
-                                        cusPhone1:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        },
-                                        
-                                    }
-                                } : {
-                                    customer:{
-                                        cusName:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        }
-                                        
-                                    }
-                                }
+                                {invCusName:{contains:filter , mode:"insensitive"}}
                             ]
                         },
                         filter1 ? {invBus:{contains:filter1}} : {},
@@ -188,24 +123,7 @@ export const getInvoice = async  (req,res) =>{
                                         mode: 'insensitive'
                                     }},
                                     {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                    isNumeric(filter) ? 
-                                    {
-                                        customer:{
-                                            cusPhone1:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            },
-                                            
-                                        }
-                                    } : {
-                                        customer:{
-                                            cusName:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            }
-                                            
-                                        }
-                                    }
+                                    {invCusName:{contains:filter,mode:'insensitive'}}
                                 ],
                                 invBus:busName
                             },
@@ -220,14 +138,7 @@ export const getInvoice = async  (req,res) =>{
                         ],
                         mode:switchMode,
                         deletedAt:null
-                    },
-                    include:{
-                        customer:{
-                            select:{
-                                cusName:true
-                            }
-                        }
-                    },
+                    }
                 })
                 const invoiceByType = await prisma.invoice.findMany({
                     take:takenValue,
@@ -243,24 +154,7 @@ export const getInvoice = async  (req,res) =>{
                                         mode: 'insensitive'
                                     }},
                                     {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                    isNumeric(filter) ? 
-                                    {
-                                        customer:{
-                                            cusPhone1:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            },
-                                            
-                                        }
-                                    } : {
-                                        customer:{
-                                            cusName:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            }
-                                            
-                                        }
-                                    }
+                                    {invCusName:{contains:filter , mode:'insensitive'}}
                                 ],
                                 invBus:busName
                             },
@@ -275,13 +169,6 @@ export const getInvoice = async  (req,res) =>{
                         ],
                         mode:switchMode,
                         deletedAt:null
-                    },
-                    include:{
-                        customer:{
-                            select:{
-                                cusName:true
-                            }
-                        }
                     },
                     orderBy:{
                         createdAt:'desc'
@@ -306,7 +193,7 @@ export const getInvoice = async  (req,res) =>{
             }
         })
     }catch(error){
-        
+        console.log(error.message)
         return res.status(500).json({msg:error})
     }
 }
@@ -326,17 +213,6 @@ export const getSingleInvoice = async (req,res) =>{
             where:{
                 id:invId,
                 deletedAt:null
-            },
-            include:{
-                customer:{
-                    select:{
-                        cusName:true,
-                        cusComp:true,
-                        cusPhone1:true,
-                        cusEmail:true,
-                        cusAddr:true
-                    }
-                }
             }
         })
         if(!singleInvoice){

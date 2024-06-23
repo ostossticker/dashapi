@@ -29,23 +29,9 @@ export const getQuotation = async  (req,res) =>{
                                 {qtTitle:{contains:filter ,
                                     mode: 'insensitive'}},
                                 {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                {
-                                    customer:{
-                                        cusPhone1:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        },
-                                        
-                                    }
-                                }
                             ]
                         },
-                        filter1 ? {customer:{
-                            cusName:{
-                                contains:filter1,
-                                mode: 'insensitive'
-                            }
-                        }} : {},
+                        filter1 ? {invCusName:{contains:filter1,mode:'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
                                 { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
@@ -54,13 +40,6 @@ export const getQuotation = async  (req,res) =>{
                         } : {},
                     ],
                     deletedAt:null,
-                },
-                include:{
-                    customer:{
-                        select:{
-                            cusName:true
-                        }
-                    }
                 },
                 orderBy:{
                     createdAt:'desc'
@@ -77,24 +56,11 @@ export const getQuotation = async  (req,res) =>{
                                     mode: 'insensitive'}},
                                 {qtTitle:{contains:filter,
                                     mode: 'insensitive'}},
-                                {invCusPhone:{contains:filter , mode:'insensitive'}},
-                                {
-                                    customer:{
-                                        cusPhone1:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        },
-                                        
-                                    }
-                                }
+                                {invCusPhone:{contains:filter , mode:'insensitive'}}
                             ]
                         },
-                        filter1 ? {customer:{
-                            cusName:{
-                                contains:filter1,
-                                mode: 'insensitive'
-                            }
-                        }} : {},
+                        filter1 ? {
+                            invCusName:{contains:filter1,mode:'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
                                 { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
@@ -103,13 +69,6 @@ export const getQuotation = async  (req,res) =>{
                         } : {},
                     ],
                     deletedAt:null,
-                },
-                include:{
-                    customer:{
-                        select:{
-                            cusName:true
-                        }
-                    }
                 },
                 orderBy:{
                     createdAt:'desc'
@@ -124,25 +83,11 @@ export const getQuotation = async  (req,res) =>{
                                     mode: 'insensitive'}},
                                 {qtTitle:{contains:filter,
                                     mode: 'insensitive'}},
-                                    {invCusPhone:{contains:filter , mode:'insensitive'}},
-
-                                {
-                                    customer:{
-                                        cusPhone1:{
-                                            contains:filter,
-                                            mode: 'insensitive'
-                                        },
-                                        
-                                    }
-                                }
+                                {invCusPhone:{contains:filter , mode:'insensitive'}},
                             ]
                         },
-                        filter1 ? {customer:{
-                            cusName:{
-                                contains:filter1,
-                                mode: 'insensitive'
-                            }
-                        }} : {},
+                        filter1 ? {
+                            invCusName:{contains:filter1 , mode:"insensitive"}} : {},
                         fromDate && toDate ? {
                             OR: [
                                 { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
@@ -167,25 +112,14 @@ export const getQuotation = async  (req,res) =>{
                                     {qtTitle:{contains:filter,
                                         mode: 'insensitive'}},
                                         {invCusPhone:{contains:filter , mode:'insensitive'}},
-    
-                                    {
-                                        customer:{
-                                            cusPhone1:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            },
-                                            
-                                        }
-                                    }
                                 ],
                                 qtBus:busName
                             },
-                            filter1 ? {customer:{
-                                cusName:{
-                                    contains:filter1,
-                                    mode: 'insensitive'
+                            filter1 ? {
+                                invCusName:{
+                                    contains:filter1,mode:'insensitive'
                                 }
-                            }} : {},
+                            } : {},
                             fromDate && toDate ? {
                                 OR: [
                                     { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
@@ -194,13 +128,6 @@ export const getQuotation = async  (req,res) =>{
                             } : {},
                         ],
                         deletedAt:null,
-                    },
-                    include:{
-                        customer:{
-                            select:{
-                                cusName:true
-                            }
-                        }
                     }
                 })
                 const quotationType = await prisma.quotation.findMany({
@@ -214,26 +141,14 @@ export const getQuotation = async  (req,res) =>{
                                         mode: 'insensitive'}},
                                     {qtTitle:{contains:filter,
                                         mode: 'insensitive'}},
-                                        {invCusPhone:{contains:filter , mode:'insensitive'}},
-    
-                                    {
-                                        customer:{
-                                            cusPhone1:{
-                                                contains:filter,
-                                                mode: 'insensitive'
-                                            },
-                                            
-                                        }
-                                    }
+                                    {invCusPhone:{contains:filter , mode:'insensitive'}},
                                 ],
                                 qtBus:busName
                             },
-                            filter1 ? {customer:{
-                                cusName:{
-                                    contains:filter1,
-                                    mode: 'insensitive'
-                                }
-                            }} : {},
+                            filter1 ? {
+                                invCusName:{
+                                    contains:filter1,mode:'insensitive'
+                                }} : {},
                             fromDate && toDate ? {
                                 OR: [
                                     { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
@@ -242,13 +157,6 @@ export const getQuotation = async  (req,res) =>{
                             } : {},
                         ],
                         deletedAt:null,
-                    },
-                    include:{
-                        customer:{
-                            select:{
-                                cusName:true
-                            }
-                        }
                     },
                     orderBy:{
                         createdAt:'desc'
@@ -314,17 +222,6 @@ export const getSingleQuotation = async (req,res) =>{
             where:{
                 id:qtId,
                 deletedAt:null
-            },
-            include:{
-                customer:{
-                    select:{
-                        cusName:true,
-                        cusComp:true,
-                        cusPhone1:true,
-                        cusEmail:true,
-                        cusAddr:true
-                    }
-                }
             }
         })
         if(!singleQuotation){

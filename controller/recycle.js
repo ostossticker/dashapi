@@ -23,12 +23,7 @@ export const recycleStuff = async (req, res) => {
                         ]
                     },
                     filterName ? {
-                        customer:{
-                            cusName:{
-                                contains:filters
-                                , mode: 'insensitive'
-                            }
-                        }
+                        invCusName:{contains:filters , mode: 'insensitive'}
                     } : {},
                     fromDate && toDate ? {
                         OR: [
@@ -49,14 +44,7 @@ export const recycleStuff = async (req, res) => {
                                 {invNo:{contains:filters , mode: 'insensitive'}}
                             ]
                         },
-                        filterName ? {
-                            customer:{
-                                cusName:{
-                                    contains:filters
-                                    , mode: 'insensitive'
-                                }
-                            }
-                        } : {},
+                        filterName ? {invCusName:{contains:filters , mode: 'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
                                 { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
@@ -65,12 +53,6 @@ export const recycleStuff = async (req, res) => {
                         } : {},
                     ],
                     deletedAt: { not: null } 
-                },include:{
-                    customer:{
-                        select:{
-                            cusName:true
-                        }
-                    }
                 },
                 orderBy: { updatedAt: 'desc' }
             }),
@@ -83,12 +65,7 @@ export const recycleStuff = async (req, res) => {
                         ]
                     },
                     filterName ? {
-                        customer:{
-                            cusName:{
-                                contains:filters
-                                , mode: 'insensitive'
-                            }
-                        }
+                        invCusName:{contains:filters , mode: 'insensitive'}
                     } : {},
                     fromDate && toDate ? {
                         OR: [
@@ -110,12 +87,7 @@ export const recycleStuff = async (req, res) => {
                             ]
                         },
                         filterName ? {
-                            customer:{
-                                cusName:{
-                                    contains:filters
-                                    , mode: 'insensitive'
-                                }
-                            }
+                            invCusName:{contains:filters , mode: 'insensitive'}
                         } : {},
                         fromDate && toDate ? {
                             OR: [
@@ -126,13 +98,6 @@ export const recycleStuff = async (req, res) => {
                     ],
                     deletedAt: { not: null } 
 
-                },
-                include:{
-                    customer:{
-                        select:{
-                            cusName:true
-                        }
-                    }
                 },
                 orderBy: { updatedAt: 'desc' }
             }),
