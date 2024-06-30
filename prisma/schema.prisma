@@ -158,6 +158,7 @@ model Business {
   busBankDes String?
   busPayTerm String?
   abaQr String?
+  bankLogo String?
   signature String?
   busLogo String?
   Rec1 String?
