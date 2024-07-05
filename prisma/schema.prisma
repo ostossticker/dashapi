@@ -259,7 +259,7 @@ model Customer {
 
 model Product {
   id String @id @default(cuid()) @unique
-  prodItemName String
+  prodItemName String @unique
   prodUnitPrice Float
   prodBus String
   prodBusType String

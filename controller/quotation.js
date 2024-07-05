@@ -19,7 +19,10 @@ export const getQuotation = async  (req,res) =>{
         let totalCal;
 
         if(user.role === "ADMIN"){
-            totalCal = await prisma.quotation.findMany({
+            totalCal = await prisma.quotation.aggregate({
+                _sum:{
+                    total:true
+                },
                 where:{
                     AND:[
                         {
@@ -102,7 +105,10 @@ export const getQuotation = async  (req,res) =>{
             quotations = []
             totalCal = []
             for(const busName of user.businessType){
-                const quotationTypeCal = await prisma.quotation.findMany({
+                const quotationTypeCal = await prisma.quotation.aggregate({
+                    _sum:{
+                        total:true
+                    },
                     where:{
                         AND:[
                             {
@@ -168,7 +174,7 @@ export const getQuotation = async  (req,res) =>{
             totalQuotations = quotations.length
         }
 
-        const totalFilter = totalCal.reduce((acc , curr)=>acc + curr.total,0)
+        const totalFilter = totalCal
 
         const totalPages = Math.ceil(totalQuotations / takenValue)
         

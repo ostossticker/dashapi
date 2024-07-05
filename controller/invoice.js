@@ -23,7 +23,10 @@ export const getInvoice = async  (req,res) =>{
         let totalInvoices;
         let invoiceTotal
         if(user.role === "ADMIN"){
-            invoiceTotal = await prisma.invoice.findMany({
+            invoiceTotal = await prisma.invoice.aggregate({
+                _sum:{
+                    balance:true
+                },
                     where:{
                         AND:[
                             {
@@ -111,7 +114,10 @@ export const getInvoice = async  (req,res) =>{
             invoiceTotal = []
             invoices = [];
             for(const busName of user.businessType){
-                const invoiceBytypeTotal = await prisma.invoice.findMany({
+                const invoiceBytypeTotal = await prisma.invoice.aggregate({
+                    _sum:{
+                        balance:true
+                    },
                     where:{
                         AND:[
                             {
@@ -180,7 +186,7 @@ export const getInvoice = async  (req,res) =>{
             totalInvoices = invoices.length;
         }
        
-        const totalFilter = invoiceTotal.reduce((acc , curr) => acc + curr.balance,0)
+        const totalFilter = invoiceTotal
         
         const totalPages = Math.ceil(totalInvoices / takenValue)
 

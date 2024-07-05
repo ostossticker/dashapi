@@ -22,7 +22,10 @@ export const getReceipt = async(req,res) =>{
         let totalCal
 
         if(user.role === 'ADMIN'){
-            totalCal = await prisma.receipt.findMany({
+            totalCal = await prisma.receipt.aggregate({
+                _sum:{
+                    usd:true
+                },
                 where:{
                     AND:[
                         {
@@ -105,7 +108,10 @@ export const getReceipt = async(req,res) =>{
             receipts = []
             totalCal = []
             for(const busName of user.businessType){
-                const receiptTotal = await prisma.receipt.findMany({
+                const receiptTotal = await prisma.receipt.aggregate({
+                    _sum:{
+                        usd:true
+                    },
                     where:{
                         AND:[
                             {
@@ -164,7 +170,7 @@ export const getReceipt = async(req,res) =>{
             }
             totalReceipts = receipts.length
         }
-        const totalFilter = totalCal.reduce((acc,curr)=> acc + curr.usd,0)
+        const totalFilter = totalCal
 
         const totalPages = Math.ceil(totalReceipts / takenValue)
 

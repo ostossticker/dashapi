@@ -92,7 +92,10 @@ export const getPayData = async (req,res) =>{
             if(!payment){
                 return res.status(404).json({msg:"sorry not founded!"})
             }
-             totalCal = await prisma.invoice.findMany({
+             totalCal = await prisma.invoice.aggregate({
+                _sum:{
+                    balance:true
+                },
                 where:{
                     AND:[
                         {
@@ -202,7 +205,10 @@ export const getPayData = async (req,res) =>{
                 if(!payment){
                     return res.status(404).json({msg:"sorry not founded!"})
                 }
-                const totalCalType = await prisma.invoice.findMany({
+                const totalCalType = await prisma.invoice.aggregate({
+                    _sum:{
+                        balance:true
+                    },
                     where:{
                         AND:[
                             {
@@ -242,7 +248,7 @@ export const getPayData = async (req,res) =>{
             totalPayments = payment.length;
         }
         
-        const totalV = totalCal.reduce((acc ,curr)=>acc + curr.balance , 0)
+        const totalV = totalCal
         const totalPages = Math.ceil(totalPayments / takenValue)
         return res.status(200).json({
             totalV,
@@ -285,46 +291,124 @@ export const getallPayment  = async (req,res) =>{
     }
 }
 
-export const payPaid = async (req,res) =>{
-    
+export const ungroupCal = async(req,res) =>{
     try{
-        const {name} = req.query
-        let total
+        const {name , filter , filter1 , filter2} = req.query
+        let total 
+        const user = await prisma.user.findFirst({
+          where:{
+            name:name
+          }
+        })
+        if(user.role === 'ADMIN'){
+          total = await prisma.invoice.aggregate({
+            _sum:{
+                balance:true
+            },
+            where:{
+              AND:[
+                  {
+                      OR:[
+                          {invCusName:{contains:filter,mode:'insensitive'}}
+                      ]
+                  },
+                  filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
+                  filter2 ? {invStatus:{contains:filter2}} : {},
+              ],
+              mode: 'invoice',
+              deletedAt:null
+          },
+          })
+        }else{
+          total = []
+          for(const busName of user.businessType){
+            const totaling = await prisma.invoice.aggregate({
+                _sum:{
+                    balance:true
+                },
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {invCusName:{contains:filter,mode:'insensitive'}}
+                            ]
+                        },
+                        filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
+                        filter2 ? {invStatus:{contains:filter2}} : {},
+                    ],
+                    invBus:busName,
+                    mode: 'invoice',
+                    deletedAt:null
+                },
+            })
+            total.push(...totaling)
+          }
+        }
+        return res.status(200).json(total)
+      }catch(error){
+        console.log(error)
+        return res.status(500).json({msg:error.message})
+      }
+}
+
+export const groupingCal = async(req,res) =>{
+    try{
+        const {name ,filter, filter1 , filter2} = req.query
+        
+        let total 
         const user = await prisma.user.findFirst({
             where:{
                 name:name
             }
         })
-        if(user.role === "ADMIN"){
+        if(user.role === 'ADMIN'){
             total = await prisma.invoice.groupBy({
-                by:['invStatus'],
+                by:['invCusName','invBus','invCusComp'],
                 where:{
-                    mode:'invoice',
+                    AND:[
+                        {
+                            OR:[
+                                {invCusName:{contains:filter,mode:'insensitive'}}
+                            ]
+                        },
+                        filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
+                        filter2 ? {invStatus:{contains:filter2}} : {},
+                    ],
+                    mode: 'invoice',
                     deletedAt:null
                 },
                 _sum:{
-                    balance:true
+                    balance:true,
                 }
             })
         }else{
-            total = []
+            let total = []
             for(const busName of user.businessType){
-                const invTotal = await prisma.invoice.groupBy({
-                    by:['invStatus'],
+                const totaling = await prisma.invoice.groupBy({
+                    by:['invCusName','invBus','invCusComp'],
                     where:{
-                        mode:'invoice',
-                        deletedAt:null,
-                        invBus:busName
+                        AND:[
+                            {
+                                OR:[
+                                    {invCusName:{contains:filter,mode:'insensitive'}}
+                                ]
+                            },
+                            filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
+                            filter2 ? {invStatus:{contains:filter2}} : {},
+                        ],
+                        invBus:busName,
+                        mode: 'invoice',
+                        deletedAt:null
                     },
                     _sum:{
-                        balance:true
-                    }
+                        balance:true,
+                    },
                 })
-                total.push(...invTotal)
+                total.push(...totaling)
             }
         }
-        
-        return res.status(200).json(total)
+        const totalItem = total.reduce((acc , curr)=> acc + curr._sum.balance , 0)
+        return res.status(200).json(totalItem)
     }catch(error){
         console.log(error)
         return res.status(500).json({msg:error.message})

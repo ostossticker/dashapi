@@ -58,46 +58,6 @@ app.get('/test',async(req,res)=>{
         console.log(error)
     }
 })
-
-app.get('/payment', async (req, res) => {
-  try {
-    const { take='3', page='1', status } = req.query;
-    const takenValue = +take;
-    const skip = (+page - 1) * takenValue;
-      const data = await prisma.invoice.groupBy({
-        take: takenValue,
-        skip,
-        by:['invCusName', 'invBus'],   
-    
-        where: {
-          invStatus:status,
-          deletedAt: n,ull,
-        },
-        _sum: {
-          balance: true,
-        },
-        orderBy:{
-          invCusName:'asc'
-        }
-    });
-
-    const totalInv = await prisma.invoice.count();
-    const totalPages = Math.ceil(totalInv / takenValue);
-
-    return res.status(200).json({
-      data,
-      pagination: {
-        page: +page,
-        totalPages,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-
   
 app.listen(port , ()=>{
     console.log(`server running on port ${port}`)
