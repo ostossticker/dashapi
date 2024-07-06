@@ -41,7 +41,7 @@ export const getInvoice = async  (req,res) =>{
                             filter2 ? {invStatus:{contains:filter2}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                     { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                                 ]
                             } : {},
@@ -70,7 +70,7 @@ export const getInvoice = async  (req,res) =>{
                         filter2 ? {invStatus:{contains:filter2}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                 { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                             ]
                         } : {},
@@ -101,7 +101,7 @@ export const getInvoice = async  (req,res) =>{
                         filter2 ? {invStatus:{contains:filter2}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                 { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                             ]
                         } : {},
@@ -137,7 +137,7 @@ export const getInvoice = async  (req,res) =>{
                             filter2 ? {invStatus:{contains:filter2}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                     { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                                 ]
                             } : {},
@@ -168,7 +168,7 @@ export const getInvoice = async  (req,res) =>{
                             filter2 ? {invStatus:{contains:filter2}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                     { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                                 ]
                             } : {},
@@ -236,9 +236,11 @@ export const getallInvoice  = async (req,res) =>{
         const {filter , mode} = req.query
 
         const inv = await prisma.invoice.findMany({
+            select:{
+                invNo:true
+            },
             where:{
                 mode:mode,
-                deletedAt:null
             }
         })
         const fuse = new Fuse(inv , {

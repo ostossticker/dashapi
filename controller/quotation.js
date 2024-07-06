@@ -37,7 +37,7 @@ export const getQuotation = async  (req,res) =>{
                         filter1 ? {invCusName:{contains:filter1,mode:'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                 { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                             ]
                         } : {},
@@ -66,7 +66,7 @@ export const getQuotation = async  (req,res) =>{
                             invCusName:{contains:filter1,mode:'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                 { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                             ]
                         } : {},
@@ -93,7 +93,7 @@ export const getQuotation = async  (req,res) =>{
                             invCusName:{contains:filter1 , mode:"insensitive"}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                 { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                             ]
                         } : {},
@@ -128,7 +128,7 @@ export const getQuotation = async  (req,res) =>{
                             } : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                     { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                                 ]
                             } : {},
@@ -157,7 +157,7 @@ export const getQuotation = async  (req,res) =>{
                                 }} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
+                                    { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
                                     { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
                                 ]
                             } : {},
