@@ -40,8 +40,12 @@ export const getReceipt = async(req,res) =>{
                             mode: 'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { date: { gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() + 1)).toISOString(), lte: new Date(new Date(toDate).setDate(new Date(toDate).getDate() + 1)).toISOString()} },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    date: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -69,8 +73,12 @@ export const getReceipt = async(req,res) =>{
                             mode: 'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { date: { gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() + 1)).toISOString(), lte: new Date(new Date(toDate).setDate(new Date(toDate).getDate() + 1)).toISOString()} },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    date: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -96,8 +104,12 @@ export const getReceipt = async(req,res) =>{
                             mode: 'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { date: { gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() + 1)).toISOString(), lte: new Date(new Date(toDate).setDate(new Date(toDate).getDate() + 1)).toISOString()} },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    date: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -127,8 +139,12 @@ export const getReceipt = async(req,res) =>{
                                 mode: 'insensitive'}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { date: { gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() + 1)).toISOString(), lte: new Date(new Date(toDate).setDate(new Date(toDate).getDate() + 1)).toISOString()} },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        date: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],
@@ -153,8 +169,12 @@ export const getReceipt = async(req,res) =>{
                                 mode: 'insensitive'}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { date: { gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() + 1)).toISOString(), lte: new Date(new Date(toDate).setDate(new Date(toDate).getDate() + 1)).toISOString()} },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        date: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],

@@ -46,8 +46,12 @@ export const getPayData = async (req,res) =>{
                                 mode: 'insensitive'}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],
@@ -73,6 +77,16 @@ export const getPayData = async (req,res) =>{
                             },
                             filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
                             filter2 ? {invStatus:{contains:filter2}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
+                                ]
+                            } : {},
                         ],
                         mode: 'invoice',
                         deletedAt:null
@@ -116,8 +130,12 @@ export const getPayData = async (req,res) =>{
                             mode: 'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    invDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -159,8 +177,12 @@ export const getPayData = async (req,res) =>{
                                     mode: 'insensitive'}} : {},
                                 fromDate && toDate ? {
                                     OR: [
-                                        { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                                        { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                        {
+                                            invDate: {
+                                                gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                                lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate() )).toISOString()
+                                            }
+                                        }
                                     ]
                                 } : {},
                             ],
@@ -186,6 +208,16 @@ export const getPayData = async (req,res) =>{
                                 },
                                 filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
                                 filter2 ? {invStatus:{contains:filter2}} : {},
+                                fromDate && toDate ? {
+                                    OR: [
+                                        {
+                                            invDate: {
+                                                gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                                lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                            }
+                                        }
+                                    ]
+                                } : {},
                             ],
                             invBus:busName,
                             mode: 'invoice',
@@ -230,8 +262,12 @@ export const getPayData = async (req,res) =>{
                                 mode: 'insensitive'}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],
@@ -293,7 +329,7 @@ export const getallPayment  = async (req,res) =>{
 
 export const ungroupCal = async(req,res) =>{
     try{
-        const {name , filter , filter1 , filter2} = req.query
+        const {name , filter , filter1 , filter2 , fromDate , toDate} = req.query
         let total 
         const user = await prisma.user.findFirst({
           where:{
@@ -314,6 +350,16 @@ export const ungroupCal = async(req,res) =>{
                   },
                   filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
                   filter2 ? {invStatus:{contains:filter2}} : {},
+                  fromDate && toDate ? {
+                    OR: [
+                        {
+                            invDate: {
+                                gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                            }
+                        }
+                    ]
+                } : {},
               ],
               mode: 'invoice',
               deletedAt:null
@@ -335,6 +381,16 @@ export const ungroupCal = async(req,res) =>{
                         },
                         filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
                         filter2 ? {invStatus:{contains:filter2}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                {
+                                    invDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
+                            ]
+                        } : {},
                     ],
                     invBus:busName,
                     mode: 'invoice',
@@ -353,7 +409,7 @@ export const ungroupCal = async(req,res) =>{
 
 export const groupingCal = async(req,res) =>{
     try{
-        const {name ,filter, filter1 , filter2} = req.query
+        const {name ,filter, filter1 , filter2 , fromDate , toDate} = req.query
         
         let total 
         const user = await prisma.user.findFirst({
@@ -373,6 +429,16 @@ export const groupingCal = async(req,res) =>{
                         },
                         filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
                         filter2 ? {invStatus:{contains:filter2}} : {},
+                        fromDate && toDate ? {
+                            OR: [
+                                {
+                                    invDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
+                            ]
+                        } : {},
                     ],
                     mode: 'invoice',
                     deletedAt:null
@@ -395,6 +461,16 @@ export const groupingCal = async(req,res) =>{
                             },
                             filter1 ? {invBus:{contains:filter1 , mode:'insensitive'}} : {},
                             filter2 ? {invStatus:{contains:filter2}} : {},
+                            fromDate && toDate ? {
+                                OR: [
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
+                                ]
+                            } : {},
                         ],
                         invBus:busName,
                         mode: 'invoice',

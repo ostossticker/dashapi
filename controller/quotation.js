@@ -37,8 +37,12 @@ export const getQuotation = async  (req,res) =>{
                         filter1 ? {invCusName:{contains:filter1,mode:'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    qtDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -66,8 +70,12 @@ export const getQuotation = async  (req,res) =>{
                             invCusName:{contains:filter1,mode:'insensitive'}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    qtDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -93,8 +101,12 @@ export const getQuotation = async  (req,res) =>{
                             invCusName:{contains:filter1 , mode:"insensitive"}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    qtDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -128,8 +140,12 @@ export const getQuotation = async  (req,res) =>{
                             } : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        qtDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],
@@ -157,8 +173,12 @@ export const getQuotation = async  (req,res) =>{
                                 }} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { qtDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        qtDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],

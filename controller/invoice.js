@@ -41,8 +41,12 @@ export const getInvoice = async  (req,res) =>{
                             filter2 ? {invStatus:{contains:filter2}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],
@@ -70,8 +74,12 @@ export const getInvoice = async  (req,res) =>{
                         filter2 ? {invStatus:{contains:filter2}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    invDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate())).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -101,8 +109,12 @@ export const getInvoice = async  (req,res) =>{
                         filter2 ? {invStatus:{contains:filter2}} : {},
                         fromDate && toDate ? {
                             OR: [
-                                { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                {
+                                    invDate: {
+                                        gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                        lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate() )).toISOString()
+                                    }
+                                }
                             ]
                         } : {},
                     ],
@@ -137,8 +149,12 @@ export const getInvoice = async  (req,res) =>{
                             filter2 ? {invStatus:{contains:filter2}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate() )).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],
@@ -168,8 +184,12 @@ export const getInvoice = async  (req,res) =>{
                             filter2 ? {invStatus:{contains:filter2}} : {},
                             fromDate && toDate ? {
                                 OR: [
-                                    { invDate: { gte: new Date(fromDate).toISOString(), lte: new Date(toDate).toISOString() } },
-                                    { updatedAt: { gte: new Date(fromDate), lte: new Date(toDate) } }
+                                    {
+                                        invDate: {
+                                            gte: new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1)).toISOString(),
+                                            lt: new Date(new Date(toDate).setDate(new Date(toDate).getDate() )).toISOString()
+                                        }
+                                    }
                                 ]
                             } : {},
                         ],

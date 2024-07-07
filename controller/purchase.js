@@ -18,8 +18,26 @@ export const getPurchase = async (req,res) =>{
     })
 
     let purchase;
+    let calPurchase;
     let totalPurchase;
     if(user.role === 'ADMIN'){
+        calPurchase = await prisma.purchase.aggregate({
+            _sum:{
+                purPrice:true
+            },
+            where:{
+                AND:[
+                    {
+                        OR:[
+                            {purName:{contains:filter , mode:'insensitive'}},
+                            {purSupp:{contains:filter , mode: 'insensitive'}},
+                        ]
+                    },
+                    filter1 ? {purBus:{contains:filter1}} : {},
+                    fromDate && toDate ? { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } } : {},
+                ]
+            },
+        })
         purchase = await prisma.purchase.findMany({
             take:takenValue,
             skip,
@@ -55,7 +73,26 @@ export const getPurchase = async (req,res) =>{
         })
     }else{
         purchase = []
+        calPurchase = []
         for(const busName of user.businessType){
+           const calpurchase = await prisma.purchase.aggregate({
+                _sum:{
+                    purPrice:true
+                },
+                where:{
+                    AND:[
+                        {
+                            OR:[
+                                {purName:{contains:filter , mode:'insensitive'}},
+                                {purSupp:{contains:filter , mode: 'insensitive'}},
+                            ],
+                            purBus:busName
+                        },
+                        filter1 ? {purBus:{contains:filter1}} : {},
+                        fromDate && toDate ? { createdAt: { gte: new Date(fromDate), lte: new Date(toDate) } } : {},
+                    ]
+                },
+            })
             const purchaseByType = await prisma.purchase.findMany({
                 take:takenValue,
                 skip,
@@ -77,13 +114,16 @@ export const getPurchase = async (req,res) =>{
                 }
             })
             purchase.push(...purchaseByType)
+            calPurchase.push(...calpurchase)
         }
         totalPurchase = purchase.length
     }
     
+    const totalFilter= calPurchase
     const totalPages = Math.ceil(totalPurchase / takenValue)
     return res.status(200).json({
         purchase,
+        totalFilter,
         pagination:{
             page:+page,
             totalPages
